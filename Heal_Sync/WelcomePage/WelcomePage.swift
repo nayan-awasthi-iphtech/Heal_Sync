@@ -1,0 +1,123 @@
+//
+//  WelcomePage.swift
+//  Heal_Sync
+//
+//  Created by iPHTech 30 on 21/09/26.
+//
+
+import SwiftUI
+
+struct WelcomePage: View {
+    
+    @State private var currentPage: Int = 0
+    
+    var body: some View {
+        ZStack {
+            
+            // MARK: - Base Background
+            LinearGradient(
+                colors: [
+                    Color(red: 0.04, green: 0.02, blue: 0.1),
+                    Color(red: 0.02, green: 0.15, blue: 0.17)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .ignoresSafeArea()
+            
+            // MARK: - Screen Content
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack (alignment: .leading, spacing: 35) {
+                    
+                    HeaderView()
+                        .padding(.top, 20)
+                    
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text(WelcomePageConstants.priorityBadge)
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(Color(red: 0.30, green: 0.85, blue: 0.65))
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .fill(Color(red: 0.08, green: 0.22, blue: 0.20).opacity(0.6))
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color(red: 0.20, green: 0.45, blue: 0.38).opacity(0.5), lineWidth: 1)
+                            )
+                        
+                        VStack(alignment: .leading, spacing: -10) {
+                            Text(WelcomePageConstants.morethanThinking)
+                                .foregroundColor(.white)
+                            
+                            HStack(spacing: 12) {
+                                Text(WelcomePageConstants.A)
+                                    .foregroundColor(.white)
+                                
+                                Text(WelcomePageConstants.healthier)
+                                    .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                            }
+                            
+                            Text(WelcomePageConstants.tomorrow)
+                                .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                        }
+                        .font(.system(size: 39, weight: .bold, design: .default))
+                        
+                        VStack(alignment: .leading, spacing: 14){
+                            VStack(alignment: .leading, spacing: 4){
+                                Text(WelcomePageConstants.description)
+                                    .font(.system(size: 21))
+                                    .foregroundStyle(.white).opacity(0.7)
+                            }
+                            
+                            WelcomeCard(
+                                imageName: "chart.bar.fill",
+                                titleText: WelcomePageConstants.Card1.title,
+                                descriptionText: WelcomePageConstants.Card1.des
+                            )
+                            
+                            WelcomeCard(
+                                imageName: "heart.fill",
+                                titleText: WelcomePageConstants.Card2.title,
+                                descriptionText: WelcomePageConstants.Card1.des
+                            )
+                            
+                            WelcomeCard(
+                                imageName: "person.badge.plus",
+                                titleText: WelcomePageConstants.Card3.title,
+                                descriptionText: WelcomePageConstants.Card3.des
+                            )
+                            
+                            Button(action: {
+                                // Action when button is tapped
+                            }) {
+                                HStack(spacing: 8) {
+                                    Text(WelcomePageConstants.getStarted)
+                                        .font(.system(size: 20, weight: .semibold))
+                                    
+                                    Image(systemName: WelcomePageConstants.Images.arrowRight)
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 18)
+                                .background(
+                                    Capsule()
+                                        .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+    }
+}
+
+#Preview {
+    WelcomePage()
+}
