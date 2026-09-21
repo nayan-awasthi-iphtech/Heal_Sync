@@ -14,7 +14,7 @@ struct Heal_SyncApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
