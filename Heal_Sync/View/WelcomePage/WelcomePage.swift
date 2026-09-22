@@ -10,6 +10,7 @@ import SwiftUI
 struct WelcomePage: View {
     
     @State private var currentPage: Int = 0
+    @State private var navigateToAuth: Bool = false
     
     var body: some View {
         ZStack {
@@ -80,7 +81,7 @@ struct WelcomePage: View {
                             WelcomeCard(
                                 imageName: "heart.fill",
                                 titleText: WelcomePageConstants.Card2.title,
-                                descriptionText: WelcomePageConstants.Card1.des
+                                descriptionText: WelcomePageConstants.Card2.des
                             )
                             
                             WelcomeCard(
@@ -90,7 +91,8 @@ struct WelcomePage: View {
                             )
                             
                             Button(action: {
-                                // Action when button is tapped
+                                SessionManager.shared.hasCompletedOnboarding = true
+                                navigateToAuth = true
                             }) {
                                 HStack(spacing: 8) {
                                     Text(WelcomePageConstants.getStarted)
@@ -114,6 +116,9 @@ struct WelcomePage: View {
                 }
                 .padding(.horizontal, 20)
             }
+        }
+        .navigationDestination(isPresented: $navigateToAuth) {
+            AuthView()
         }
     }
 }

@@ -7,15 +7,36 @@
 
 import SwiftUI
 
+enum Destination {
+    case home
+    case onboarding
+    case auth
+}
+
 struct SplashView: View {
-    @State private var isActive: Bool = false
+    
     @State private var logoOpacity: Double = 0.0
     @State private var logoScale: CGFloat = 0.8
     @State private var pulseGlow: Bool = false
     
+    @State private var isActive: Bool = false
+    @State private var targetDestination: Destination = .onboarding
+    @StateObject private var sessionAuthViewModel = AuthViewModel()
+    
     var body: some View {
         if isActive {
-            LandingPage()
+            switch targetDestination {
+            case .home:
+                if sessionAuthViewModel.isAuthenticated {
+                    MainTabView()
+                } else {
+                    AuthView()
+                }
+            case .onboarding:
+                LandingPage()
+            case .auth:
+                AuthView()
+            }
         } else {
             ZStack {
                 
@@ -84,6 +105,15 @@ struct SplashView: View {
                 .opacity(logoOpacity)
             }
             .onAppear {
+                
+                if SessionManager.shared.isLoggedIn {
+                    targetDestination = .home
+                } else if !SessionManager.shared.hasCompletedOnboarding {
+                    targetDestination = .onboarding
+                } else {
+                    targetDestination = .auth
+                }
+                
                 // Animation starts
                 withAnimation(.easeOut(duration: 1.0)) {
                     logoOpacity = 1.0
@@ -109,5 +139,5 @@ struct SplashView: View {
 #Preview {
     SplashView()
 }
-     
-        
+
+

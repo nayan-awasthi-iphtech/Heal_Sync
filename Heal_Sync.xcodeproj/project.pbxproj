@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		0BC8B169305D471C00FE8123 /* Heal_Sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heal_Sync.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BC8B169305D471C00FE8123 /* Heal_Sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Heal_Sync.app; path = "/Users/iphtech30/Documents/Nayan Awasthi/Projects/Heal_Sync/build/Debug-iphoneos/Heal_Sync.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -31,16 +31,7 @@
 			isa = PBXGroup;
 			children = (
 				0BC8B16B305D471C00FE8123 /* Heal_Sync */,
-				0BC8B16A305D471C00FE8123 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		0BC8B16A305D471C00FE8123 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				0BC8B169305D471C00FE8123 /* Heal_Sync.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -89,7 +80,7 @@
 			mainGroup = 0BC8B160305D471C00FE8123;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 0BC8B16A305D471C00FE8123 /* Products */;
+			productRefGroup = 0BC8B160305D471C00FE8123;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
