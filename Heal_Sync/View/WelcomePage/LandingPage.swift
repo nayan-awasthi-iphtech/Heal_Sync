@@ -10,7 +10,7 @@ struct LandingPage: View {
         NavigationStack{
             ZStack {
                 
-                // MARK: - Base Background
+                // Base Background
                 LinearGradient(
                     colors: [
                         Color(red: 0.05, green: 0.02, blue: 0.06),
@@ -21,7 +21,7 @@ struct LandingPage: View {
                 )
                 .ignoresSafeArea()
                 
-                // MARK: - Wave Background Lines
+                // Wave Background Lines
                 GeometryReader { geometry in
                     let width = geometry.size.width
                     let height = geometry.size.height
@@ -54,7 +54,7 @@ struct LandingPage: View {
                 }
                 .ignoresSafeArea()
                 
-                // MARK: - Screen Content
+                // Screen Content
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack (alignment: .leading, spacing: 35) {
                         
@@ -153,7 +153,7 @@ struct LandingPage: View {
                                                 .lineLimit(1)
                                         }
                                         
-                                        // "Daily Activity" on next line
+                                        // Daily Activity on next line
                                         Text(LandingPageConstants.cardDailyActivity)
                                             .font(.system(size: 22, weight: .bold))
                                             .foregroundColor(.white)

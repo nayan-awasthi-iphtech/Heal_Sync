@@ -30,12 +30,12 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house.fill")
                 }
             
-            ActivityView()
+            ActivityScreenView()
                 .tabItem {
                     Label("Activity", systemImage: "figure.run")
                 }
             
-            HealthView()
+            InsightsScreenView()
                 .tabItem {
                     Label("Health", systemImage: "heart.fill")
                 }
@@ -45,53 +45,17 @@ struct MainTabView: View {
                     Label("Profile", systemImage: "person.fill")
                 }
         }
-        .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
-    }
-}
-
-// Placeholder tabs
-struct ActivityView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Activity")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
-        }
-    }
-}
-
-struct HealthView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Health")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
-        }
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
 struct ProfileView: View {
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                Text("Profile")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
-                
-                Button("Log Out") {
-                    SessionManager.shared.clearSession()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
-            }
-        }
+        Text("profile Screen")
+            .font(.system(size: 30))
     }
 }
 
-#Preview {
+#Preview{
     MainTabView()
 }

@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum DayDuration: String, CaseIterable {
-    case day = "Day"
-    case week = "Week"
-    case month = "Month"
-}
-
 struct ActivityData {
     let currentSteps: Int
     let targetGoal: Int
@@ -20,37 +14,19 @@ struct ActivityData {
 
 struct ActivityScreenView: View {
     
-    @State private var duration: DayDuration = .day
-    
-    init() {
-        let appearance = UISegmentedControl.appearance()
-        
-        // Background color of the segmented picker container
-        appearance.backgroundColor = UIColor(red: 0.07, green: 0.14, blue: 0.16, alpha: 1.0)
-        
-        // Selected segment color (light green)
-        appearance.selectedSegmentTintColor = UIColor(red: 0.20, green: 0.69, blue: 0.67, alpha: 1.0)
-        
-        // Custom font size
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.systemFont(ofSize: 13, weight: .bold)
-        ], for: .normal)
-        
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.black,
-            .font: UIFont.systemFont(ofSize: 13, weight: .bold)
-        ], for: .selected)
-    }
+    @State private var selectedTab: String = "Day"
+    let options = ["Day", "Week", "Month"]
     
     private var activityData: ActivityData {
-        switch duration {
-        case .day:
+        switch selectedTab {
+        case "Day":
             return ActivityData(currentSteps: 7482, targetGoal: 10000)
-        case .week:
+        case "Week":
             return ActivityData(currentSteps: 52300, targetGoal: 70000)
-        case .month:
+        case "Month":
             return ActivityData(currentSteps: 210500, targetGoal: 300000)
+        default:
+            return ActivityData(currentSteps: 7482, targetGoal: 10000)
         }
     }
     
@@ -68,27 +44,12 @@ struct ActivityScreenView: View {
             .ignoresSafeArea()
             
             ScrollView(showsIndicators: false){
-                VStack(alignment: .leading, spacing: 8){
-                    Text("Actvity")
-                        .font(.system(size: 35, weight: .bold))
-                        .foregroundStyle(.white)
-                    
-                    Text("Stay Active, Stay Healthy")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
+                HeaderView(title: "Activity", subTitle: "Stay Active, Stay Healthy")
                 
-                Picker("Duration", selection: $duration){
-                    ForEach(DayDuration.allCases, id: \.self){ days in
-                        Text(days.rawValue).tag(days)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .scaleEffect(y: 1.5)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                PickerView(
+                    selection: $selectedTab,
+                    options: options
+                )
                 
                 StepProgressCard(currentSteps: activityData.currentSteps, goalSteps: activityData.targetGoal)
                 

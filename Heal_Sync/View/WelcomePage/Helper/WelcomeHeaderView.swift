@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HeaderView: View {
+struct WelcomeHeaderView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
             
@@ -42,5 +42,5 @@ struct HeaderView: View {
 }
 
 #Preview {
-    HeaderView()
+    WelcomeHeaderView()
 }
