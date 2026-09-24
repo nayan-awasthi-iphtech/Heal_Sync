@@ -34,4 +34,18 @@ struct HomeScreenConstants {
     }
     
     static let quick = "Quick Actions"
+    
+    struct BottomCardIcons {
+        static let logIcon = "figure.run"
+        static let ForkIcon = "fork.knife"
+        static let HeartIcon = "heart.fill"
+        static let TargetIcon = "target"
+    }
+    
+    struct TitleText {
+        static let LogText = "Log\nActivity"
+        static let ForkText = "Track\nNutrition"
+        static let VitalText = "Check\nVital"
+        static let TargetText = "Set\nGoals"
+    }
 }

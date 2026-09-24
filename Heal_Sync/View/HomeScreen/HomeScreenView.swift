@@ -221,6 +221,36 @@ struct HomeScreenView: View {
                     Text(HomeScreenConstants.quick)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
+                    
+                    HStack(spacing: 10){
+                        HomeBottomCard(
+                            imageName: HomeScreenConstants.BottomCardIcons.logIcon,
+                            titleText: HomeScreenConstants.TitleText.LogText,
+                            imageColor: .green,
+                            customGlowColor: .green,
+                        )
+                        
+                        HomeBottomCard(
+                            imageName: HomeScreenConstants.BottomCardIcons.ForkIcon,
+                            titleText: HomeScreenConstants.TitleText.ForkText,
+                            imageColor: .blue,
+                            customGlowColor: .blue,
+                        )
+                        
+                        HomeBottomCard(
+                            imageName: HomeScreenConstants.BottomCardIcons.HeartIcon,
+                            titleText: HomeScreenConstants.TitleText.VitalText,
+                            imageColor: .red,
+                            customGlowColor: .red
+                        )
+                        
+                        HomeBottomCard(
+                            imageName: HomeScreenConstants.BottomCardIcons.TargetIcon,
+                            titleText: HomeScreenConstants.TitleText.TargetText,
+                            imageColor: .purple,
+                            customGlowColor: .purple,
+                        )
+                    }
                 }
                 .padding([.horizontal, .bottom])
             }
