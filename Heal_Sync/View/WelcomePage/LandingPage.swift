@@ -62,7 +62,7 @@ struct LandingPage: View {
                             .padding(.top, 20)
                         
                         VStack(alignment: .leading, spacing: 15) {
-                            Text(LandingPageConstants.priorityBadge)
+                            Text(LandingScreenConstants.priorityBadge)
                                 .font(.system(size: 17, weight: .medium))
                                 .foregroundColor(Color(red: 0.30, green: 0.85, blue: 0.65))
                                 .padding(.horizontal, 9)
@@ -77,18 +77,18 @@ struct LandingPage: View {
                                 )
                             
                             VStack(alignment: .leading, spacing: -10) {
-                                Text(LandingPageConstants.trackYour)
+                                Text(LandingScreenConstants.trackYour)
                                     .foregroundColor(.white)
                                 
                                 HStack(spacing: 8) {
-                                    Text(LandingPageConstants.health)
+                                    Text(LandingScreenConstants.health)
                                         .foregroundColor(.white)
                                     
-                                    Text(LandingPageConstants.live)
+                                    Text(LandingScreenConstants.live)
                                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                                 }
                                 
-                                Text(LandingPageConstants.better)
+                                Text(LandingScreenConstants.better)
                                     .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             }
                             .font(.system(size: 47, weight: .bold, design: .default))
@@ -98,11 +98,11 @@ struct LandingPage: View {
                             
                             VStack(alignment: .leading, spacing: 30){
                                 VStack(alignment: .leading, spacing: 4){
-                                    Text(LandingPageConstants.simpleTools)
+                                    Text(LandingScreenConstants.simpleTools)
                                         .font(.system(size: 22, weight: .medium))
                                         .foregroundStyle(.white)
                                     
-                                    Text(LandingPageConstants.healthierYou)
+                                    Text(LandingScreenConstants.healthierYou)
                                         .font(.system(size: 22, weight: .medium))
                                         .foregroundStyle(.white)
                                 }
@@ -112,10 +112,10 @@ struct LandingPage: View {
                                 })
                                 {
                                     HStack(spacing: 8) {
-                                        Text(LandingPageConstants.getStarted)
+                                        Text(LandingScreenConstants.getStarted)
                                             .font(.system(size: 18, weight: .bold))
                                         
-                                        Image(systemName: LandingPageConstants.Images.arrowRight)
+                                        Image(systemName: LandingScreenConstants.Images.arrowRight)
                                             .font(.system(size: 16, weight: .bold))
                                     }
                                     .foregroundColor(.black)
@@ -129,7 +129,7 @@ struct LandingPage: View {
                                  
                                 HStack(alignment: .center, spacing: 12) {
                                     // Left side: Runner image
-                                    Image(LandingPageConstants.Images.runningImage)
+                                    Image(LandingScreenConstants.Images.runningImage)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 110, height: 190)
@@ -141,27 +141,27 @@ struct LandingPage: View {
                                         
                                         // Header line: Green Heart Badge + "Track"
                                         HStack(alignment: .center, spacing: 6) {
-                                            Image(systemName: LandingPageConstants.Images.heartFill)
+                                            Image(systemName: LandingScreenConstants.Images.heartFill)
                                                 .font(.system(size: 18))
                                                 .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                                                 .shadow(color: Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.5), radius: 6)
                                             
-                                            Text(LandingPageConstants.cardTrack)
+                                            Text(LandingScreenConstants.cardTrack)
                                                 .font(.system(size: 22, weight: .bold))
                                                 .foregroundColor(.white)
                                                 .minimumScaleFactor(0.8)
                                                 .lineLimit(1)
                                         }
                                         
-                                        // Daily Activity on next line
-                                        Text(LandingPageConstants.cardDailyActivity)
+                                        // "Daily Activity" on next line
+                                        Text(LandingScreenConstants.cardDailyActivity)
                                             .font(.system(size: 22, weight: .bold))
                                             .foregroundColor(.white)
                                             .minimumScaleFactor(0.8)
                                             .lineLimit(1)
                                         
                                         // Description
-                                        Text(LandingPageConstants.cardDescription)
+                                        Text(LandingScreenConstants.cardDescription)
                                             .font(.system(size: 14, weight: .regular))
                                             .foregroundColor(Color.white.opacity(0.75))
                                             .lineSpacing(2)

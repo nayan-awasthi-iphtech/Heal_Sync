@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AuthView: View {
     
-    @StateObject private var authViewModel = AuthViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     init() {
         UISegmentedControl.appearance().backgroundColor = UIColor(red: 0.08, green: 0.22, blue: 0.20, alpha: 0.6)
@@ -78,11 +78,11 @@ struct AuthView: View {
                         .padding(.top, 10)
                         .padding(.bottom, 8)
                         
-                        Text(authViewModel.authMode == .login ? "Welcome Back" : "Start Your Journey")
+                        Text(authViewModel.authMode == .login ? AuthScreenConstants.loginTitle : AuthScreenConstants.signupTitle)
                             .foregroundStyle(.white)
                             .font(.system(size: 28, weight: .bold))
                         
-                        Text(authViewModel.authMode == .login ? "Sync your health data & stats" : "Create an account to track your activity")
+                        Text(authViewModel.authMode == .login ? AuthScreenConstants.loginSubtitle : AuthScreenConstants.signupSubtitle)
                             .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             .fontWeight(.semibold)
                             .font(.system(size: 15))
@@ -103,7 +103,7 @@ struct AuthView: View {
                             if authViewModel.authMode == .signup {
                                 CustomTextField(
                                     iconName: "person.fill",
-                                    placeholder: "Full Name",
+                                    placeholder: AuthScreenConstants.fullNamePlaceholder,
                                     text: $authViewModel.fullName
                                 )
                                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -112,7 +112,7 @@ struct AuthView: View {
                             // Email Field
                             CustomTextField(
                                 iconName: "envelope.fill",
-                                placeholder: "Email Address",
+                                placeholder: AuthScreenConstants.emailPlaceholder,
                                 text: $authViewModel.email
                             )
                             .textInputAutocapitalization(.never)
@@ -120,7 +120,7 @@ struct AuthView: View {
                             
                             // Password Field
                             CustomPasswordField(
-                                placeholder: "Password",
+                                placeholder: AuthScreenConstants.passwordPlaceholder,
                                 password: $authViewModel.password,
                                 isVisible: $authViewModel.isPasswordVisible
                             )
@@ -129,7 +129,7 @@ struct AuthView: View {
                             if authViewModel.authMode == .login {
                                 HStack {
                                     Spacer()
-                                    Button("Forgot Password?") {
+                                    Button(AuthScreenConstants.forgotPassword) {
                                         // Forgot password action
                                     }
                                     .font(.system(size: 14, weight: .medium))
@@ -143,7 +143,7 @@ struct AuthView: View {
                         Button(action: {
                             authViewModel.handlePrimaryAction()
                         }) {
-                            Text(authViewModel.authMode == .login ? "Log In" : "Create Account")
+                            Text(authViewModel.authMode == .login ? AuthScreenConstants.loginButton : AuthScreenConstants.signupButton)
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -159,15 +159,11 @@ struct AuthView: View {
                         Spacer()
                     }
                 }
-                .alert("Authentication Error", isPresented: $authViewModel.showAlert) {
-                    Button("OK", role: .cancel) { }
+                .alert(AuthScreenConstants.alertTitle, isPresented: $authViewModel.showAlert) {
+                    Button(AuthScreenConstants.alertOK, role: .cancel) { }
                 } message: {
                     Text(authViewModel.alertMessage)
                 }
-            }
-            .navigationDestination(isPresented: $authViewModel.isAuthenticated) {
-                MainTabView()
-                    .navigationBarBackButtonHidden(true)
             }
         }
     }
@@ -238,4 +234,5 @@ struct CustomPasswordField: View {
 
 #Preview {
     AuthView()
+        .environmentObject(AuthViewModel())
 }

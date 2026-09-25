@@ -9,6 +9,11 @@ import SwiftUI
 
 struct MainTabView: View {
     
+    /// Single shared activity tracker: Home (live today cards) and Activity
+    /// (Day/Week/Month) observe the same instance, so there is exactly one
+    /// pedometer stream and one source of truth.
+    @StateObject private var activityViewModel = ActivityViewModel()
+    
     init() {
         // Sets up dark background for the TabBar to match your theme
         let appearance = UITabBarAppearance()
@@ -27,35 +32,36 @@ struct MainTabView: View {
         TabView {
             HomeScreenView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(TabBarConstants.home, systemImage: "house.fill")
                 }
             
             ActivityScreenView()
                 .tabItem {
-                    Label("Activity", systemImage: "figure.run")
+                    Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
             
             InsightsScreenView()
                 .tabItem {
-                    Label("Health", systemImage: "heart.fill")
+                    Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
             
-            ProfileView()
+            ProfileScreenView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label(TabBarConstants.profile, systemImage: "person.fill")
                 }
         }
         .ignoresSafeArea(edges: .bottom)
-    }
-}
-
-struct ProfileView: View {
-    var body: some View {
-        Text("profile Screen")
-            .font(.system(size: 30))
+        .environmentObject(activityViewModel)
+        .onAppear {
+            activityViewModel.onAppear()
+        }
+        .onDisappear {
+            activityViewModel.onDisappear()
+        }
     }
 }
 
 #Preview{
     MainTabView()
+        .environmentObject(AuthViewModel())
 }

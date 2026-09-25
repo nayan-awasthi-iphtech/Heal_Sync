@@ -8,21 +8,43 @@
 import SwiftUI
 
 struct ActivityScreenBottomCard: View {
+    var distanceKm: String = "0.0"
+    var activityDate: Date = Date()
+
+    // Daypart from the hour of the day
+    private var daypart: String {
+        let hour = Calendar.current.component(.hour, from: activityDate)
+        switch hour {
+        case 5..<12:
+            return ActivityScreenConstants.morning
+        case 12..<17:
+            return ActivityScreenConstants.afternoon
+        case 17..<22:
+            return ActivityScreenConstants.evening
+        default:
+            return ActivityScreenConstants.night
+        }
+    }
+
+    private var timeString: String {
+        activityDate.formatted(date: .omitted, time: .shortened)
+    }
+
     var body: some View {
         HStack(spacing:15){
-            Image(systemName: "figure.run")
+            Image(systemName: ActivityScreenConstants.runImage)
                 .resizable()
                 .scaledToFit()
                 .fontWeight(.heavy)
                 .frame(width: 50, height: 50)
                 .foregroundStyle(Color(red: 0.20, green: 0.69, blue: 0.67))
             
-            VStack{
-                Text("Morning Run")
+            VStack(alignment: .leading){
+                Text("\(daypart) \(ActivityScreenConstants.run)")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white)
                 
-                Text("Today, 7:00 AM")
+                Text("\(ActivityScreenConstants.today), \(timeString)")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
             }
@@ -30,15 +52,16 @@ struct ActivityScreenBottomCard: View {
             Spacer()
             
             HStack(spacing: 3){
-                Text("3.2")
+                Text(distanceKm)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.white)
-                Text("km")
+                    .contentTransition(.numericText())
+                Text(ActivityScreenConstants.kmeter)
                     .font(.system(size: 17, weight: .bold))
                     .foregroundStyle(.white)
             }
             
-            Image(systemName: "chevron.right")
+            Image(systemName: ActivityScreenConstants.chevronRightImage)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
         }

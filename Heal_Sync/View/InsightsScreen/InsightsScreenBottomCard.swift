@@ -21,11 +21,11 @@ struct InsightsScreenBottomCard: View {
                 )
             
             VStack(alignment: .leading, spacing: 5){
-                Text("Keep it up!")
+                Text(InsightsScreenConstants.keepItUp)
                     .font(.system(size: 21, weight: .medium))
                     .foregroundStyle(.white)
                 
-                Text("Your hear rate is in healthy range")
+                Text(InsightsScreenConstants.healthyRange)
                     .font(.system(size: 17))
                     .foregroundStyle(.white)
                 

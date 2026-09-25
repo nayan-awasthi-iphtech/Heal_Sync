@@ -11,13 +11,13 @@ struct InsightsScreenCenterCard: View {
 
     // Week Data
     private let weekData: [(day: String, value: Double)] = [
-        ("Mon", 62),
-        ("Tue", 70),
-        ("Wed", 64),
-        ("Thu", 58),
-        ("Fri", 72),
-        ("Sat", 52),
-        ("Sun", 60)
+        (InsightsScreenConstants.weekDays[0], 62),
+        (InsightsScreenConstants.weekDays[1], 70),
+        (InsightsScreenConstants.weekDays[2], 64),
+        (InsightsScreenConstants.weekDays[3], 58),
+        (InsightsScreenConstants.weekDays[4], 72),
+        (InsightsScreenConstants.weekDays[5], 52),
+        (InsightsScreenConstants.weekDays[6], 60)
     ]
     private let maxValue: Double = 120
     @State private var selectedIndex: Int = 4
@@ -34,7 +34,7 @@ struct InsightsScreenCenterCard: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(mintGreen)
 
-                Text("Heart Rate")
+                Text(InsightsScreenConstants.heartRate)
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.white)
 
@@ -52,7 +52,7 @@ struct InsightsScreenCenterCard: View {
                         .font(.system(size: 38, weight: .bold))
                         .foregroundColor(.white)
                         .animation(.easeInOut(duration: 0.2), value: selectedIndex)
-                    Text("bpm")
+                    Text(InsightsScreenConstants.bpmUnit)
                         .font(.system(size: 18, weight: .regular))
                         .foregroundColor(.white.opacity(0.85))
                         .padding(.bottom, 4)
@@ -67,7 +67,7 @@ struct InsightsScreenCenterCard: View {
                     }
                     .foregroundColor(mintGreen)
 
-                    Text("vs. last week")
+                    Text(InsightsScreenConstants.vsLastWeek)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(.white)
                 }

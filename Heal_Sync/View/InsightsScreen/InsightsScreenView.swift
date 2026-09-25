@@ -9,8 +9,12 @@ import SwiftUI
 
 struct InsightsScreenView: View {
     
-    @State private var selectedTab: String = "Health"
-    let options = ["Health", "Sleep", "Calories"]
+    @State private var selectedTab: String = InsightsScreenConstants.health
+    let options = [
+        InsightsScreenConstants.health,
+        InsightsScreenConstants.sleep,
+        InsightsScreenConstants.calories
+    ]
     
     var body: some View {
         
@@ -25,19 +29,21 @@ struct InsightsScreenView: View {
             )
             .ignoresSafeArea()
             
-            VStack{
-                
-                HeaderView(title: "Insights", subTitle: "Understand Today, Build a better tomorrow")
-                
-                PickerView(selection: $selectedTab, options: options)
-
-                InsightsScreenCenterCard()
-                    .padding(.top, 8)
-                
-                InsightsScreenBottomCard()
-                    .padding(.top, 10)
-                
-                Spacer()
+            ScrollView{
+                VStack{
+                    
+                    HeaderView(title: InsightsScreenConstants.mainTitle, subTitle: InsightsScreenConstants.subtitle)
+                    
+                    PickerView(selection: $selectedTab, options: options)
+                    
+                    InsightsScreenCenterCard()
+                        .padding(.top, 8)
+                    
+                    InsightsScreenBottomCard()
+                        .padding(.top, 10)
+                    
+                    Spacer()
+                }
             }
         }
     }

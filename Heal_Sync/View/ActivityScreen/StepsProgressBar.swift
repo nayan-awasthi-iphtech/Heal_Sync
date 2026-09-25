@@ -52,7 +52,7 @@ struct StepProgressCard: View {
                     .contentTransition(.numericText())
                     .padding(.top,4)
                 
-                Text("Steps")
+                Text(ActivityScreenConstants.steps)
                     .font(.system(size: 21, weight: .semibold))
                     .foregroundColor(.white.opacity(0.8))
                 

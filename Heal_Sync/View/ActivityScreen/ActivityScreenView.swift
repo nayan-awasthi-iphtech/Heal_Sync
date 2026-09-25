@@ -2,37 +2,16 @@
 //  ActivityScreenView.swift
 //  Heal_Sync
 //
-//  Created by iPHTech 30 on 24/09/26.
-//
 
 import SwiftUI
 
-struct ActivityData {
-    let currentSteps: Int
-    let targetGoal: Int
-}
-
 struct ActivityScreenView: View {
-    
-    @State private var selectedTab: String = "Day"
-    let options = ["Day", "Week", "Month"]
-    
-    private var activityData: ActivityData {
-        switch selectedTab {
-        case "Day":
-            return ActivityData(currentSteps: 7482, targetGoal: 10000)
-        case "Week":
-            return ActivityData(currentSteps: 52300, targetGoal: 70000)
-        case "Month":
-            return ActivityData(currentSteps: 210500, targetGoal: 300000)
-        default:
-            return ActivityData(currentSteps: 7482, targetGoal: 10000)
-        }
-    }
-    
+
+    // Shared tracker owned by MainTabView (single pedometer stream).
+    @EnvironmentObject var viewModel: ActivityViewModel
+
     var body: some View {
-        
-        ZStack(alignment: .topLeading){
+        ZStack(alignment: .topLeading) {
             LinearGradient(
                 colors: [
                     Color(red: 0.05, green: 0.02, blue: 0.06),
@@ -42,25 +21,53 @@ struct ActivityScreenView: View {
                 endPoint: .trailing
             )
             .ignoresSafeArea()
-            
-            ScrollView(showsIndicators: false){
-                HeaderView(title: "Activity", subTitle: "Stay Active, Stay Healthy")
-                
+
+            ScrollView(showsIndicators: false) {
+                HeaderView(title: ActivityScreenConstants.mainTitle, subTitle: ActivityScreenConstants.subtitle)
+
                 PickerView(
-                    selection: $selectedTab,
-                    options: options
+                    selection: $viewModel.selectedTab,
+                    options: viewModel.options
                 )
-                
-                StepProgressCard(currentSteps: activityData.currentSteps, goalSteps: activityData.targetGoal)
-                
-                VStack(spacing: 25){
-                    HStack(spacing: 100){
-                        ActivityScreenComponent(ImageName: "mapSymbol",titleText: "5.2", unitText: "km")
-                        ActivityScreenComponent(ImageName: "flame", isSystemImage: true, titleText: "320", unitText: "kcal", ImageColor: .red)
-                        ActivityScreenComponent(ImageName: "stopwatch", isSystemImage: true, titleText: "48", unitText: "min")
+                .onChange(of: viewModel.selectedTab) { _, newTab in
+                    // Fetch steps for selected range when tab changes
+                    viewModel.loadActivityData(for: newTab)
+                }
+
+                // Circular Progress Ring displaying live/calculated steps & dynamic goal
+                StepProgressCard(
+                    currentSteps: viewModel.currentSteps,
+                    goalSteps: viewModel.targetGoal
+                )
+
+                VStack(spacing: 25) {
+                    HStack(spacing: 40) {
+                        ActivityScreenComponent(
+                            ImageName: "mapSymbol",
+                            titleText: viewModel.distanceKmFormatted,
+                            unitText: ActivityScreenConstants.km
+                        )
+                        
+                        ActivityScreenComponent(
+                            ImageName: "flame",
+                            isSystemImage: true,
+                            titleText: viewModel.activeCaloriesFormatted,
+                            unitText: ActivityScreenConstants.kcal,
+                            ImageColor: .red
+                        )
+                        
+                        ActivityScreenComponent(
+                            ImageName: "stopwatch",
+                            isSystemImage: true,
+                            titleText: viewModel.activeMinutesFormatted,
+                            unitText: ActivityScreenConstants.min
+                        )
                     }
-                    
-                    ActivityScreenBottomCard()
+
+                    ActivityScreenBottomCard(
+                        distanceKm: viewModel.distanceKmFormatted,
+                        activityDate: viewModel.lastUpdated
+                    )
                 }
             }
         }
@@ -69,4 +76,5 @@ struct ActivityScreenView: View {
 
 #Preview {
     ActivityScreenView()
+        .environmentObject(ActivityViewModel())
 }
