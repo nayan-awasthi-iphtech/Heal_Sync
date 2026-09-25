@@ -9,6 +9,11 @@ import SwiftUI
 
 struct MainTabView: View {
     
+    /// Single shared activity tracker: Home (live today cards) and Activity
+    /// (Day/Week/Month) observe the same instance, so there is exactly one
+    /// pedometer stream and one source of truth.
+    @StateObject private var activityViewModel = ActivityViewModel()
+    
     init() {
         // Sets up dark background for the TabBar to match your theme
         let appearance = UITabBarAppearance()
@@ -30,68 +35,33 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house.fill")
                 }
             
-            ActivityView()
+            ActivityScreenView()
                 .tabItem {
                     Label("Activity", systemImage: "figure.run")
                 }
             
-            HealthView()
+            InsightsScreenView()
                 .tabItem {
                     Label("Health", systemImage: "heart.fill")
                 }
             
-            ProfileView()
+            ProfileScreenView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
         }
-        .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
-    }
-}
-
-// Placeholder tabs
-struct ActivityView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Activity")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
+        .ignoresSafeArea(edges: .bottom)
+        .environmentObject(activityViewModel)
+        .onAppear {
+            activityViewModel.onAppear()
+        }
+        .onDisappear {
+            activityViewModel.onDisappear()
         }
     }
 }
 
-struct HealthView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Health")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
-        }
-    }
-}
-
-struct ProfileView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                Text("Profile")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
-                
-                Button("Log Out") {
-                    SessionManager.shared.clearSession()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
-            }
-        }
-    }
-}
-
-#Preview {
+#Preview{
     MainTabView()
+        .environmentObject(AuthViewModel())
 }

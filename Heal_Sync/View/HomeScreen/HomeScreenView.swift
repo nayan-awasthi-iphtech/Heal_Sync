@@ -9,6 +9,9 @@ import SwiftUI
 
 struct HomeScreenView: View {
     
+    // Live today tracker shared from MainTabView (same instance as Activity tab).
+    @EnvironmentObject var activityViewModel: ActivityViewModel
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -177,13 +180,13 @@ struct HomeScreenView: View {
                     }
                     
                     HStack(alignment: .top, spacing: 10) {
-                        // Steps Card
+                        // Steps Card (live today count)
                         HomeScreenOverviewCard1(
                             imageName: "figure.run",
                             titleText: "Steps",
-                            descriptionText: "7,482",
+                            descriptionText: activityViewModel.todayStepsFormatted,
                             goalText: "/10,000",
-                            progress: 0.748
+                            progress: activityViewModel.todayStepsProgress
                         )
 
                         // Heart Rate Card
@@ -197,13 +200,13 @@ struct HomeScreenView: View {
                     }
                     
                     HStack(alignment: .top, spacing: 10) {
-                        // Calories Card
+                        // Calories Card (live today count)
                         HomeScreenOverviewCard1(
                             imageName: "flame.fill",
                             titleText: "Calories",
-                            descriptionText: "320 kcal",
+                            descriptionText: activityViewModel.todayCaloriesFormatted,
                             goalText: "of 500 kcal",
-                            progress: 0.64,
+                            progress: activityViewModel.todayCaloriesProgress,
                             progressColor: Color.orange,
                             imageColor: Color.red
                         )
@@ -260,4 +263,5 @@ struct HomeScreenView: View {
 
 #Preview {
     HomeScreenView()
+        .environmentObject(ActivityViewModel())
 }

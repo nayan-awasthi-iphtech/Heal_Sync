@@ -2,61 +2,16 @@
 //  ActivityScreenView.swift
 //  Heal_Sync
 //
-//  Created by iPHTech 30 on 24/09/26.
-//
 
 import SwiftUI
 
-enum DayDuration: String, CaseIterable {
-    case day = "Day"
-    case week = "Week"
-    case month = "Month"
-}
-
-struct ActivityData {
-    let currentSteps: Int
-    let targetGoal: Int
-}
-
 struct ActivityScreenView: View {
-    
-    @State private var duration: DayDuration = .day
-    
-    init() {
-        let appearance = UISegmentedControl.appearance()
-        
-        // Background color of the segmented picker container
-        appearance.backgroundColor = UIColor(red: 0.07, green: 0.14, blue: 0.16, alpha: 1.0)
-        
-        // Selected segment color (light green)
-        appearance.selectedSegmentTintColor = UIColor(red: 0.20, green: 0.69, blue: 0.67, alpha: 1.0)
-        
-        // Custom font size
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.systemFont(ofSize: 13, weight: .bold)
-        ], for: .normal)
-        
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.black,
-            .font: UIFont.systemFont(ofSize: 13, weight: .bold)
-        ], for: .selected)
-    }
-    
-    private var activityData: ActivityData {
-        switch duration {
-        case .day:
-            return ActivityData(currentSteps: 7482, targetGoal: 10000)
-        case .week:
-            return ActivityData(currentSteps: 52300, targetGoal: 70000)
-        case .month:
-            return ActivityData(currentSteps: 210500, targetGoal: 300000)
-        }
-    }
-    
+
+    // Shared tracker owned by MainTabView (single pedometer stream).
+    @EnvironmentObject var viewModel: ActivityViewModel
+
     var body: some View {
-        
-        ZStack(alignment: .topLeading){
+        ZStack(alignment: .topLeading) {
             LinearGradient(
                 colors: [
                     Color(red: 0.05, green: 0.02, blue: 0.06),
@@ -66,40 +21,53 @@ struct ActivityScreenView: View {
                 endPoint: .trailing
             )
             .ignoresSafeArea()
-            
-            ScrollView(showsIndicators: false){
-                VStack(alignment: .leading, spacing: 8){
-                    Text("Actvity")
-                        .font(.system(size: 35, weight: .bold))
-                        .foregroundStyle(.white)
-                    
-                    Text("Stay Active, Stay Healthy")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(.white)
+
+            ScrollView(showsIndicators: false) {
+                HeaderView(title: "Activity", subTitle: "Stay Active, Stay Healthy")
+
+                PickerView(
+                    selection: $viewModel.selectedTab,
+                    options: viewModel.options
+                )
+                .onChange(of: viewModel.selectedTab) { _, newTab in
+                    // Fetch steps for selected range when tab changes
+                    viewModel.loadActivityData(for: newTab)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                
-                Picker("Duration", selection: $duration){
-                    ForEach(DayDuration.allCases, id: \.self){ days in
-                        Text(days.rawValue).tag(days)
+
+                // Circular Progress Ring displaying live/calculated steps & dynamic goal
+                StepProgressCard(
+                    currentSteps: viewModel.currentSteps,
+                    goalSteps: viewModel.targetGoal
+                )
+
+                VStack(spacing: 25) {
+                    HStack(spacing: 40) {
+                        ActivityScreenComponent(
+                            ImageName: "mapSymbol",
+                            titleText: viewModel.distanceKmFormatted,
+                            unitText: "km"
+                        )
+
+                        ActivityScreenComponent(
+                            ImageName: "flame",
+                            isSystemImage: true,
+                            titleText: viewModel.activeCaloriesFormatted,
+                            unitText: "kcal",
+                            ImageColor: .red
+                        )
+
+                        ActivityScreenComponent(
+                            ImageName: "stopwatch",
+                            isSystemImage: true,
+                            titleText: viewModel.activeMinutesFormatted,
+                            unitText: "min"
+                        )
                     }
-                }
-                .pickerStyle(.segmented)
-                .scaleEffect(y: 1.5)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                
-                StepProgressCard(currentSteps: activityData.currentSteps, goalSteps: activityData.targetGoal)
-                
-                VStack(spacing: 25){
-                    HStack(spacing: 100){
-                        ActivityScreenComponent(ImageName: "mapSymbol",titleText: "5.2", unitText: "km")
-                        ActivityScreenComponent(ImageName: "flame", isSystemImage: true, titleText: "320", unitText: "kcal", ImageColor: .red)
-                        ActivityScreenComponent(ImageName: "stopwatch", isSystemImage: true, titleText: "48", unitText: "min")
-                    }
-                    
-                    ActivityScreenBottomCard()
+
+                    ActivityScreenBottomCard(
+                        distanceKm: viewModel.distanceKmFormatted,
+                        activityDate: viewModel.lastUpdated
+                    )
                 }
             }
         }
@@ -108,4 +76,5 @@ struct ActivityScreenView: View {
 
 #Preview {
     ActivityScreenView()
+        .environmentObject(ActivityViewModel())
 }

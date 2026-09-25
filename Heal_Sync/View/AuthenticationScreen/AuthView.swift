@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AuthView: View {
     
-    @StateObject private var authViewModel = AuthViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     init() {
         UISegmentedControl.appearance().backgroundColor = UIColor(red: 0.08, green: 0.22, blue: 0.20, alpha: 0.6)
@@ -165,10 +165,6 @@ struct AuthView: View {
                     Text(authViewModel.alertMessage)
                 }
             }
-            .navigationDestination(isPresented: $authViewModel.isAuthenticated) {
-                MainTabView()
-                    .navigationBarBackButtonHidden(true)
-            }
         }
     }
 }
@@ -238,4 +234,5 @@ struct CustomPasswordField: View {
 
 #Preview {
     AuthView()
+        .environmentObject(AuthViewModel())
 }
