@@ -45,8 +45,8 @@ struct ProfileScreenView: View {
             print("🔄 ProfileScreenView observed isAuthenticated change: \(newValue)")
         }
     }
-}
-
+}     
+       
 struct LogoutButton: View {
     var action: () -> Void
     
