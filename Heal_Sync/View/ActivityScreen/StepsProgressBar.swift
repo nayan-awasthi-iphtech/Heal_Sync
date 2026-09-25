@@ -24,7 +24,7 @@ struct StepProgressCard: View {
 
     private var trackingButton: some View {
         Button(action: onToggleTracking) {
-            Image(systemName: isTracking ? "pause.fill" : "play.fill")
+            Image(systemName: isTracking ? ActivityScreenConstants.Symbols.pause : ActivityScreenConstants.Symbols.play)
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(isTracking ? .blue.opacity(0.5) : .black.opacity(0.5))
                 .frame(width: 69, height: 69)
@@ -35,7 +35,7 @@ struct StepProgressCard: View {
                 .overlay(Circle().stroke(Color.white.opacity(0.35), lineWidth: 1.5))
                 .shadow(color: .black, radius: 8, x: 0, y: 14)
         }
-        .accessibilityLabel(isTracking ? "Stop tracking" : "Start tracking")
+        .accessibilityLabel(isTracking ? ActivityScreenConstants.Symbols.stop : ActivityScreenConstants.Symbols.start)
         .offset(x: 58, y: -15)
     }
 
@@ -53,7 +53,7 @@ struct StepProgressCard: View {
 
             // Content
             VStack(spacing: 6) {
-                Image(systemName: "shoe.fill")
+                Image(systemName: ActivityScreenConstants.Symbols.shoeImage)
                     .font(.system(size: 34))
                     .foregroundColor(primaryGreen)
                     .rotationEffect(.degrees(40))

@@ -7,7 +7,7 @@ import SwiftUI
 
 struct ActivityScreenView: View {
 
-    // Shared tracker owned by MainTabView (single pedometer stream).
+    // Shared tracker owned by MainTabView 
     @EnvironmentObject var viewModel: ActivityViewModel
 
     var body: some View {
@@ -50,22 +50,22 @@ struct ActivityScreenView: View {
 
                 VStack(spacing: 25) {
                     HStack(spacing: 100) {
-                        ActivityScreenComponent(
-                            ImageName: "mapSymbol",
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.mapPointer,
                             titleText: viewModel.distanceKmFormatted,
                             unitText: ActivityScreenConstants.km
                         )
                         
-                        ActivityScreenComponent(
-                            ImageName: "flame",
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.flame,
                             isSystemImage: true,
                             titleText: viewModel.activeCaloriesFormatted,
                             unitText: ActivityScreenConstants.kcal,
                             ImageColor: .red
                         )
                         
-                        ActivityScreenComponent(
-                            ImageName: "stopwatch",
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.watch,
                             isSystemImage: true,
                             titleText: viewModel.activeMinutesFormatted,
                             unitText: ActivityScreenConstants.min

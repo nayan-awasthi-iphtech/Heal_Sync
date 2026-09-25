@@ -24,20 +24,12 @@ final class ProfileViewModel: ObservableObject {
         ActivityScreenConstants.month
     ]
 
-    @Published private(set) var userName: String = ProfileScreenConstants.unknownUser
-    @Published private(set) var userEmail: String = ""
-    @Published private(set) var memberSince: String = ""
-
     @Published private(set) var steps: Int = 0
     @Published private(set) var distanceMeters: Double = 0.0
 
     private let store = ActivityStore.shared
 
     // Computed Properties
-    var userInitial: String {
-        userName.first.map { String($0).uppercased() } ?? "•"
-    }
-
     var todayTitle: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMMM d"
@@ -96,36 +88,9 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-    // Refresh Logic
+    // Refresh Logic (stats only — identity lives in CurrentUserViewModel)
     func refresh() {
-        loadUser()
         loadStats()
-    }
-
-    private func loadUser() {
-        let email = SessionManager.shared.activeUserEmail
-            .lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !email.isEmpty else { return }
-
-        let context = PersistenceController.shared.container.viewContext
-        let request = NSFetchRequest<NSManagedObject>(entityName: "User")
-        request.predicate = NSPredicate(format: "email ==[c] %@", email)
-        request.fetchLimit = 1
-
-        guard let user = try? context.fetch(request).first else { return }
-
-        let name = (user.value(forKey: "name") as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        userName = (name?.isEmpty == false) ? name! : "—"
-        userEmail = (user.value(forKey: "email") as? String) ?? email
-
-        if let createdAt = user.value(forKey: "createdAt") as? Date {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM yyyy"
-            memberSince = String(format: ProfileScreenConstants.memberSinceFormat, formatter.string(from: createdAt))
-        } else {
-            memberSince = ""
-        }
     }
 
     private func loadStats() {

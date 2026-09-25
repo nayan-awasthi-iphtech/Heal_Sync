@@ -11,7 +11,7 @@ struct HomeScreenConstants {
     
     struct Greetings {
         static let goodMorning = "Good Morning,"
-        static let userName = "Alex"
+        static let fallbackName = "Friend"
         static let subtitle = "Your Health Journey matters!"
     }
     

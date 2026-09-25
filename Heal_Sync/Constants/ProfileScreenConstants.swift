@@ -41,4 +41,15 @@ struct ProfileScreenConstants {
     // Logout
 
     static let logout = "Log Out"
+    static let logoutTitle = "Log Out?"
+    static let logoutMessage = "Are you sure you want to log out of HealSync?"
+    static let logoutConfirm = "Log Out"
+    static let logoutCancel = "Cancel"
+
+    // Edit profile
+
+    static let editProfile = "Edit Profile"
+    static let namePlaceholder = "Full Name"
+    static let save = "Save"
+    static let cancel = "Cancel"
 }

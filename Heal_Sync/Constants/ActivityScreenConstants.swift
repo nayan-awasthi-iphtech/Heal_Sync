@@ -14,10 +14,6 @@ struct ActivityScreenConstants {
     static let mainTitle = "Activity"
     static let subtitle = "Stay Active, Stay Healthy"
     
-    // Picker Titles
-    // NOTE: These double as logic keys (ActivityViewModel.selectedTab switch).
-    // Keep values in sync with the view model if you localize them.
-    
     static let day = "Day"
     static let week = "Week"
     static let month = "Month"
@@ -28,11 +24,17 @@ struct ActivityScreenConstants {
     static let startTracking = "Start Tracking"
     static let stopTracking = "Stop"
     
-    // Health Stats text
+    // Health Stats text and Symbols
     
     static let km = "km"
     static let kcal = "kcal"
     static let min = "min"
+    
+    struct StatsImages {
+        static let mapPointer = "mapSymbol"
+        static let flame = "flame"
+        static let watch = "stopwatch"
+    }
     
     // Daypart Text
     
@@ -48,4 +50,14 @@ struct ActivityScreenConstants {
     static let today = "Today"
     static let kmeter = "km"
     static let chevronRightImage = "chevron.right"
+    
+    // Activity Progress Bar Text
+    
+    struct Symbols {
+        static let pause = "pause.fill"
+        static let play = "play.fill"
+        static let stop = "Stop tracking"
+        static let start = "Start tracking"
+        static let shoeImage = "shoe.fill"
+    }
 }

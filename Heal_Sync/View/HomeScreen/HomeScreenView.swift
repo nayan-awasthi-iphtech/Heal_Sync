@@ -9,8 +9,9 @@ import SwiftUI
 
 struct HomeScreenView: View {
     
-    // Live today tracker shared from MainTabView (same instance as Activity tab).
+    // Live today tracker shared from MainTabView
     @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var currentUser: CurrentUserViewModel
     
     var body: some View {
         ZStack {
@@ -34,7 +35,7 @@ struct HomeScreenView: View {
                             .foregroundStyle(.white)
                         
                         HStack(alignment: .center, spacing: 15) {
-                            Text(HomeScreenConstants.Greetings.userName)
+                            Text(currentUser.firstName)
                                 .font(.system(size: 28))
                                 .foregroundStyle(.white)
                             
@@ -257,6 +258,9 @@ struct HomeScreenView: View {
                 }
                 .padding([.horizontal, .bottom])
             }
+            .onAppear{
+                print("Name of the user:", currentUser.displayName)
+            }
         }
     }
 }
@@ -264,4 +268,5 @@ struct HomeScreenView: View {
 #Preview {
     HomeScreenView()
         .environmentObject(ActivityViewModel())
+        .environmentObject(CurrentUserViewModel())
 }

@@ -42,4 +42,8 @@ struct AuthScreenConstants {
     static let nameRequired = "Please enter your full name."
     static let emailInvalid = "Please enter a valid email address."
     static let passwordTooShort = "Password must be at least 6 characters long."
+    
+    // Picker text
+    
+    static let select = "Select View"
 }

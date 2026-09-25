@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		0BF8103C3066419C0091C2E2 /* Heal_Sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heal_Sync.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BF8103C3066419C0091C2E2 /* Heal_Sync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Heal_Sync.app; path = "/Users/iphtech30/Documents/Nayan Awasthi/Projects/Heal_Sync/build/Debug-iphoneos/Heal_Sync.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -31,7 +31,6 @@
 			isa = PBXGroup;
 			children = (
 				0BC8B16B305D471C00FE8123 /* Heal_Sync */,
-				0BF8103C3066419C0091C2E2 /* Heal_Sync.app */,
 			);
 			sourceTree = "<group>";
 		};

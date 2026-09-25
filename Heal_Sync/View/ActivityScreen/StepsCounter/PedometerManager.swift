@@ -8,12 +8,10 @@ import Foundation
 import CoreMotion
 import Combine
 
+@MainActor
 class PedometerManager: ObservableObject {
     private let pedometer = CMPedometer()
 
-    // startUpdates delivers CUMULATIVE totals since its start date on every
-    // call (not per-call deltas), so only the difference since the previous
-    // delivery may be added — otherwise steps get counted multiple times.
     private var lastLiveSteps: Int = 0
     private var lastLiveDistance: Double = 0.0
 
@@ -29,7 +27,6 @@ class PedometerManager: ObservableObject {
         lastLiveDistance = 0.0
     }
 
-    /// Loads step data based on the selected timeframe.
     func loadActivityData(for timeFrame: String) {
         currentTimeframe = timeFrame
         pedometer.stopUpdates() // Stop active streams before recalculating

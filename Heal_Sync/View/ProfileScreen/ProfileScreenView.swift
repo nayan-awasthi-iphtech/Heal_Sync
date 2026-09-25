@@ -11,7 +11,11 @@ struct ProfileScreenView: View {
 
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
+    @EnvironmentObject var currentUser: CurrentUserViewModel
     @StateObject private var profileViewModel = ProfileViewModel()
+    @State private var showLogoutConfirm = false
+    @State private var showEditSheet = false
+    @State private var draftName = ""
 
     private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
 
@@ -30,11 +34,35 @@ struct ProfileScreenView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 14) {
-                    HeaderView(title: ProfileScreenConstants.mainTitle, subTitle: ProfileScreenConstants.subtitle)
+                    // Header title + edit button
+                    HStack(alignment: .top, spacing: 0) {
+                        HeaderView(title: ProfileScreenConstants.mainTitle, subTitle: ProfileScreenConstants.subtitle)
 
-                    // MARK: - User card
+                        Button {
+                            draftName = currentUser.name
+                            showEditSheet = true
+                        } label: {
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.black)
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    Circle()
+                                        .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
+                                )
+                                .shadow(color: Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.35), radius: 8, x: 0, y: 4)
+                        }
+                        .padding(.top, 22)
+                        .padding(.trailing, 16)
+                    }
+
+                    // User card
                     HStack(spacing: 14) {
-                        Text(profileViewModel.userInitial)
+                        Text(currentUser.initial)
                             .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.black)
                             .frame(width: 60, height: 60)
@@ -50,18 +78,18 @@ struct ProfileScreenView: View {
                             )
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(profileViewModel.userName)
+                            Text(currentUser.displayName)
                                 .font(.system(size: 22, weight: .bold))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
 
-                            Text(profileViewModel.userEmail)
+                            Text(currentUser.email)
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
                                 .lineLimit(1)
 
-                            if !profileViewModel.memberSince.isEmpty {
-                                Text(profileViewModel.memberSince)
+                            if !currentUser.memberSince.isEmpty {
+                                Text(currentUser.memberSince)
                                     .font(.system(size: 13, weight: .regular))
                                     .foregroundColor(mintGreen)
                             }
@@ -79,7 +107,7 @@ struct ProfileScreenView: View {
                     )
                     .padding(.horizontal, 16)
 
-                    // MARK: - Present day banner
+                    // Present day banner
                     HStack(spacing: 10) {
                         Image(systemName: "calendar")
                             .font(.system(size: 16, weight: .semibold))
@@ -112,7 +140,7 @@ struct ProfileScreenView: View {
                     )
                     .padding(.horizontal, 16)
 
-                    // MARK: - Range picker + stats
+                    // Range picker + stats
                     PickerView(
                         selection: $profileViewModel.selectedRange,
                         options: profileViewModel.ranges
@@ -165,15 +193,30 @@ struct ProfileScreenView: View {
                     }
                     .padding(.horizontal, 16)
 
-                    // MARK: - Logout
+                    // Logout (with confirmation)
                     LogoutButton {
-                        authViewModel.logout()
+                        showLogoutConfirm = true
                     }
                     .padding(.top, 8)
                     .padding(.bottom, 100)
                 }
                 .padding(.bottom, 20)
             }
+        }
+        .alert(
+            ProfileScreenConstants.logoutTitle,
+            isPresented: $showLogoutConfirm
+        ) {
+            Button(ProfileScreenConstants.logoutCancel, role: .cancel) { }
+            Button(ProfileScreenConstants.logoutConfirm, role: .destructive) {
+                authViewModel.logout()
+            }
+        } message: {
+            Text(ProfileScreenConstants.logoutMessage)
+        }
+        .sheet(isPresented: $showEditSheet) {
+            editSheet
+                .presentationDetents([.medium])
         }
         .onAppear {
             profileViewModel.refresh()
@@ -184,6 +227,73 @@ struct ProfileScreenView: View {
         }
         .onChange(of: authViewModel.isAuthenticated) { _, newValue in
             print("🔄 ProfileScreenView observed isAuthenticated change: \(newValue)")
+        }
+    }
+
+    // Edit profile sheet (same dark + mint theme)
+
+    private var editSheet: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.04, green: 0.02, blue: 0.1),
+                    Color(red: 0.02, green: 0.15, blue: 0.17)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Text(ProfileScreenConstants.editProfile)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.top, 8)
+
+                HStack(spacing: 12) {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                        .frame(width: 24)
+
+                    TextField("", text: $draftName, prompt: Text(ProfileScreenConstants.namePlaceholder).foregroundColor(.white.opacity(0.4)))
+                        .foregroundColor(.white)
+                        .textInputAutocapitalization(.words)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+                .padding(.horizontal, 20)
+
+                Button {
+                    currentUser.updateName(draftName)
+                    showEditSheet = false
+                } label: {
+                    Text(ProfileScreenConstants.save)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            Capsule()
+                                .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
+                        )
+                }
+                .padding(.horizontal, 20)
+
+                Button(ProfileScreenConstants.cancel, role: .cancel) {
+                    showEditSheet = false
+                }
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white.opacity(0.7))
+
+                Spacer()
+            }
         }
     }
 }
@@ -222,4 +332,5 @@ struct LogoutButton: View {
     ProfileScreenView()
         .environmentObject(AuthViewModel())
         .environmentObject(ActivityViewModel())
+        .environmentObject(CurrentUserViewModel())
 }

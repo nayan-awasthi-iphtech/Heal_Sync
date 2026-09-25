@@ -8,11 +8,9 @@
 import SwiftUI
 
 struct MainTabView: View {
-    
-    /// Single shared activity tracker: Home (live today cards) and Activity
-    /// (Day/Week/Month) observe the same instance, so there is exactly one
-    /// pedometer stream and one source of truth.
+
     @StateObject private var activityViewModel = ActivityViewModel()
+    @StateObject private var currentUser = CurrentUserViewModel()
     @Environment(\.scenePhase) private var scenePhase
     
     init() {
@@ -53,15 +51,14 @@ struct MainTabView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .environmentObject(activityViewModel)
+        .environmentObject(currentUser)
         .onAppear {
             activityViewModel.onAppear()
+            currentUser.refresh()
         }
         .onDisappear {
             activityViewModel.onDisappear()
         }
-        // Pause counting when the app is backgrounded/closed, resume on return.
-        // The old == .background guard avoids a double load on fresh launch
-        // (onAppear already loads).
         .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background {
                 activityViewModel.appDidEnterBackground()

@@ -88,7 +88,7 @@ struct AuthView: View {
                             .font(.system(size: 15))
                         
                        // Picker
-                        Picker("Select View", selection: $authViewModel.authMode) {
+                        Picker(AuthScreenConstants.select, selection: $authViewModel.authMode) {
                             ForEach(AuthMode.allCases, id: \.self) { mode in
                                 Text(mode.rawValue).tag(mode)
                             }

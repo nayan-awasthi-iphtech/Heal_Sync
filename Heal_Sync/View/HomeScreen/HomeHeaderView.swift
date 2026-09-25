@@ -44,14 +44,33 @@ struct HomeHeaderView: View {
             
             Image(systemName: "person.fill")
                 .resizable()
-                .scaledToFill()
-                .frame(width: 50, height: 50)
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(.white.opacity(0.6))
+                .frame(width: 52, height: 52)
+                .background(
+                    Circle()
+                        .fill(.black.opacity(0.3))
+                )
                 .clipShape(Circle())
-                .foregroundStyle(.white).opacity(0.5)
+                .padding(.horizontal, 2)
         }
     }
 }
 
 #Preview{
-    HomeHeaderView()
+    
+    ZStack{
+        LinearGradient(
+            colors: [
+                Color(red: 0.05, green: 0.02, blue: 0.06),
+                Color(red: 0.06, green: 0.20, blue: 0.19)
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+        .ignoresSafeArea()
+        
+        HomeHeaderView()
+    }
 }
