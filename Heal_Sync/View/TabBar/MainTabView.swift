@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct MainTabView: View {
-    
-    /// Single shared activity tracker: Home (live today cards) and Activity
-    /// (Day/Week/Month) observe the same instance, so there is exactly one
-    /// pedometer stream and one source of truth.
+
     @StateObject private var activityViewModel = ActivityViewModel()
+    @StateObject private var currentUser = CurrentUserViewModel()
+    @Environment(\.scenePhase) private var scenePhase
     
     init() {
         // Sets up dark background for the TabBar to match your theme
@@ -32,31 +31,40 @@ struct MainTabView: View {
         TabView {
             HomeScreenView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(TabBarConstants.home, systemImage: "house.fill")
                 }
             
             ActivityScreenView()
                 .tabItem {
-                    Label("Activity", systemImage: "figure.run")
+                    Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
             
             InsightsScreenView()
                 .tabItem {
-                    Label("Health", systemImage: "heart.fill")
+                    Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
             
             ProfileScreenView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label(TabBarConstants.profile, systemImage: "person.fill")
                 }
         }
         .ignoresSafeArea(edges: .bottom)
         .environmentObject(activityViewModel)
+        .environmentObject(currentUser)
         .onAppear {
             activityViewModel.onAppear()
+            currentUser.refresh()
         }
         .onDisappear {
             activityViewModel.onDisappear()
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                activityViewModel.appDidEnterBackground()
+            } else if newPhase == .active, oldPhase == .background {
+                activityViewModel.appBecameActive()
+            }
         }
     }
 }

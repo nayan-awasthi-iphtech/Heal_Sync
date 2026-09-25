@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ActivityScreenComponent: View {
+struct ActivityScreenStatsComponent: View {
     
     var ImageName: String
     var isSystemImage: Bool = false
@@ -56,7 +56,7 @@ struct ActivityScreenComponent: View {
             endPoint: .trailing
         )
         .ignoresSafeArea()
-        ActivityScreenComponent(ImageName: "mapSymbol" , titleText: "5.2", unitText: "km")
+        ActivityScreenStatsComponent(ImageName: "mapSymbol" , titleText: "5.2", unitText: "km")
             .padding()
     }
 }

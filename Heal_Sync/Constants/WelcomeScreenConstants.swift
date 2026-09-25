@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WelcomePageConstants {
+struct WelcomeScreenConstants {
     // Main Header
     static let appName = "HealSync"
     

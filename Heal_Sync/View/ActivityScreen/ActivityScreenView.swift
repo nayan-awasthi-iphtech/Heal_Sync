@@ -7,7 +7,7 @@ import SwiftUI
 
 struct ActivityScreenView: View {
 
-    // Shared tracker owned by MainTabView (single pedometer stream).
+    // Shared tracker owned by MainTabView 
     @EnvironmentObject var viewModel: ActivityViewModel
 
     var body: some View {
@@ -23,7 +23,7 @@ struct ActivityScreenView: View {
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                HeaderView(title: "Activity", subTitle: "Stay Active, Stay Healthy")
+                HeaderView(title: ActivityScreenConstants.mainTitle, subTitle: ActivityScreenConstants.subtitle)
 
                 PickerView(
                     selection: $viewModel.selectedTab,
@@ -37,30 +37,38 @@ struct ActivityScreenView: View {
                 // Circular Progress Ring displaying live/calculated steps & dynamic goal
                 StepProgressCard(
                     currentSteps: viewModel.currentSteps,
-                    goalSteps: viewModel.targetGoal
+                    goalSteps: viewModel.targetGoal,
+                    isTracking: viewModel.isTracking,
+                    onToggleTracking: {
+                        if viewModel.isTracking {
+                            viewModel.stopTracking()
+                        } else {
+                            viewModel.startTracking()
+                        }
+                    }
                 )
 
                 VStack(spacing: 25) {
-                    HStack(spacing: 40) {
-                        ActivityScreenComponent(
-                            ImageName: "mapSymbol",
+                    HStack(spacing: 100) {
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.mapPointer,
                             titleText: viewModel.distanceKmFormatted,
-                            unitText: "km"
+                            unitText: ActivityScreenConstants.km
                         )
-
-                        ActivityScreenComponent(
-                            ImageName: "flame",
+                        
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.flame,
                             isSystemImage: true,
                             titleText: viewModel.activeCaloriesFormatted,
-                            unitText: "kcal",
+                            unitText: ActivityScreenConstants.kcal,
                             ImageColor: .red
                         )
-
-                        ActivityScreenComponent(
-                            ImageName: "stopwatch",
+                        
+                        ActivityScreenStatsComponent(
+                            ImageName: ActivityScreenConstants.StatsImages.watch,
                             isSystemImage: true,
                             titleText: viewModel.activeMinutesFormatted,
-                            unitText: "min"
+                            unitText: ActivityScreenConstants.min
                         )
                     }
 

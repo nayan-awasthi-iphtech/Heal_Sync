@@ -8,23 +8,30 @@ import Foundation
 import CoreMotion
 import Combine
 
+@MainActor
 class PedometerManager: ObservableObject {
     private let pedometer = CMPedometer()
-    
+
+    private var lastLiveSteps: Int = 0
+    private var lastLiveDistance: Double = 0.0
+
     @Published var currentSteps: Int = 0
     @Published var distanceMeters: Double = 0.0
-    
+
     private(set) var currentTimeframe: String = "Day"
 
     func seed(steps: Int, distance: Double) {
         currentSteps = steps
         distanceMeters = distance
+        lastLiveSteps = 0
+        lastLiveDistance = 0.0
     }
 
-    /// Loads step data based on the selected timeframe.
     func loadActivityData(for timeFrame: String) {
         currentTimeframe = timeFrame
         pedometer.stopUpdates() // Stop active streams before recalculating
+        lastLiveSteps = 0
+        lastLiveDistance = 0.0
 
         guard CMPedometer.isStepCountingAvailable() else { return }
         
@@ -62,10 +69,16 @@ class PedometerManager: ObservableObject {
                 DispatchQueue.main.async {
                     guard let self = self, error == nil, let liveData = liveData else { return }
                     guard self.currentTimeframe == "Day" else { return }
-                    
-                    // liveData.numberOfSteps contains ONLY new steps taken since 'now'
-                    self.currentSteps += liveData.numberOfSteps.intValue
-                    self.distanceMeters += liveData.distance?.doubleValue ?? (Double(liveData.numberOfSteps.intValue) * 0.75)
+
+                    // Deliveries are cumulative since 'now' — add only the delta.
+                    let totalSteps = liveData.numberOfSteps.intValue
+                    let totalDistance = liveData.distance?.doubleValue ?? (Double(totalSteps) * 0.75)
+                    let newSteps = max(0, totalSteps - self.lastLiveSteps)
+                    let newDistance = max(0, totalDistance - self.lastLiveDistance)
+                    self.lastLiveSteps = totalSteps
+                    self.lastLiveDistance = totalDistance
+                    self.currentSteps += newSteps
+                    self.distanceMeters += newDistance
                 }
             }
         }
@@ -73,6 +86,8 @@ class PedometerManager: ObservableObject {
 
     func stopTracking() {
         pedometer.stopUpdates()
+        lastLiveSteps = 0
+        lastLiveDistance = 0.0
     }
 }
 

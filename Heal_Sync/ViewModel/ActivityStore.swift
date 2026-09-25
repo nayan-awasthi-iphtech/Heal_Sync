@@ -27,7 +27,7 @@ final class ActivityStore {
         dayFormatter.string(from: date)
     }
 
-    // MARK: - Current User
+    // Current User
     private func currentUser() -> NSManagedObject? {
         let email = SessionManager.shared.activeUserEmail
             .lowercased()
@@ -40,7 +40,7 @@ final class ActivityStore {
         return try? context.fetch(request).first
     }
 
-    // MARK: - Single Day CRUD
+    // Single Day CRUD
     func loadDay(dayID: String) -> (steps: Int, distance: Double)? {
         guard let owner = currentUser() else { return nil }
 
@@ -84,7 +84,7 @@ final class ActivityStore {
         }
     }
 
-    // MARK: - Range Aggregation
+    // Range Aggregation
     func sumDays(from start: Date, to end: Date) -> (steps: Int, distance: Double) {
         guard let owner = currentUser() else { return (0, 0.0) }
 

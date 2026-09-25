@@ -34,7 +34,7 @@ struct WelcomePage: View {
                         .padding(.top, 20)
                     
                     VStack(alignment: .leading, spacing: 15) {
-                        Text(WelcomePageConstants.priorityBadge)
+                        Text(WelcomeScreenConstants.priorityBadge)
                             .font(.system(size: 17, weight: .medium))
                             .foregroundColor(Color(red: 0.30, green: 0.85, blue: 0.65))
                             .padding(.horizontal, 9)
@@ -49,45 +49,45 @@ struct WelcomePage: View {
                             )
                         
                         VStack(alignment: .leading, spacing: -10) {
-                            Text(WelcomePageConstants.morethanThinking)
+                            Text(WelcomeScreenConstants.morethanThinking)
                                 .foregroundColor(.white)
                             
                             HStack(spacing: 12) {
-                                Text(WelcomePageConstants.A)
+                                Text(WelcomeScreenConstants.A)
                                     .foregroundColor(.white)
                                 
-                                Text(WelcomePageConstants.healthier)
+                                Text(WelcomeScreenConstants.healthier)
                                     .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             }
                             
-                            Text(WelcomePageConstants.tomorrow)
+                            Text(WelcomeScreenConstants.tomorrow)
                                 .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         }
                         .font(.system(size: 39, weight: .bold, design: .default))
                         
                         VStack(alignment: .leading, spacing: 14){
                             VStack(alignment: .leading, spacing: 4){
-                                Text(WelcomePageConstants.description)
+                                Text(WelcomeScreenConstants.description)
                                     .font(.system(size: 21))
                                     .foregroundStyle(.white).opacity(0.7)
                             }
                             
                             WelcomeCard(
                                 imageName: "chart.bar.fill",
-                                titleText: WelcomePageConstants.Card1.title,
-                                descriptionText: WelcomePageConstants.Card1.des
+                                titleText: WelcomeScreenConstants.Card1.title,
+                                descriptionText: WelcomeScreenConstants.Card1.des
                             )
                             
                             WelcomeCard(
                                 imageName: "heart.fill",
-                                titleText: WelcomePageConstants.Card2.title,
-                                descriptionText: WelcomePageConstants.Card2.des
+                                titleText: WelcomeScreenConstants.Card2.title,
+                                descriptionText: WelcomeScreenConstants.Card2.des
                             )
                             
                             WelcomeCard(
                                 imageName: "person.badge.plus",
-                                titleText: WelcomePageConstants.Card3.title,
-                                descriptionText: WelcomePageConstants.Card3.des
+                                titleText: WelcomeScreenConstants.Card3.title,
+                                descriptionText: WelcomeScreenConstants.Card3.des
                             )
                             
                             Button(action: {
@@ -95,10 +95,10 @@ struct WelcomePage: View {
                                 navigateToAuth = true
                             }) {
                                 HStack(spacing: 8) {
-                                    Text(WelcomePageConstants.getStarted)
+                                    Text(WelcomeScreenConstants.getStarted)
                                         .font(.system(size: 20, weight: .semibold))
                                     
-                                    Image(systemName: WelcomePageConstants.Images.arrowRight)
+                                    Image(systemName: WelcomeScreenConstants.Images.arrowRight)
                                         .font(.system(size: 16, weight: .semibold))
                                 }
                                 .foregroundColor(.black)

@@ -9,8 +9,12 @@ import SwiftUI
 
 struct InsightsScreenView: View {
     
-    @State private var selectedTab: String = "Health"
-    let options = ["Health", "Sleep", "Calories"]
+    @State private var selectedTab: String = InsightsScreenConstants.health
+    let options = [
+        InsightsScreenConstants.health,
+        InsightsScreenConstants.sleep,
+        InsightsScreenConstants.calories
+    ]
     
     var body: some View {
         
@@ -28,7 +32,7 @@ struct InsightsScreenView: View {
             ScrollView{
                 VStack{
                     
-                    HeaderView(title: "Insights", subTitle: "Understand Today, Build a better tomorrow")
+                    HeaderView(title: InsightsScreenConstants.mainTitle, subTitle: InsightsScreenConstants.subtitle)
                     
                     PickerView(selection: $selectedTab, options: options)
                     

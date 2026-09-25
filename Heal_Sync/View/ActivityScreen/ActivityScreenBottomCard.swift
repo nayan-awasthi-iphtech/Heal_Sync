@@ -11,29 +11,28 @@ struct ActivityScreenBottomCard: View {
     var distanceKm: String = "0.0"
     var activityDate: Date = Date()
 
-    // Daypart from the hour of the day: Morning / Afternoon / Evening / Night
+    // Daypart from the hour of the day
     private var daypart: String {
         let hour = Calendar.current.component(.hour, from: activityDate)
         switch hour {
         case 5..<12:
-            return "Morning"
+            return ActivityScreenConstants.morning
         case 12..<17:
-            return "Afternoon"
+            return ActivityScreenConstants.afternoon
         case 17..<22:
-            return "Evening"
+            return ActivityScreenConstants.evening
         default:
-            return "Night"
+            return ActivityScreenConstants.night
         }
     }
 
     private var timeString: String {
-        // e.g. "7:00 AM" — locale aware, matches old hardcoded format
         activityDate.formatted(date: .omitted, time: .shortened)
     }
 
     var body: some View {
         HStack(spacing:15){
-            Image(systemName: "figure.run")
+            Image(systemName: ActivityScreenConstants.runImage)
                 .resizable()
                 .scaledToFit()
                 .fontWeight(.heavy)
@@ -41,11 +40,11 @@ struct ActivityScreenBottomCard: View {
                 .foregroundStyle(Color(red: 0.20, green: 0.69, blue: 0.67))
             
             VStack(alignment: .leading){
-                Text("\(daypart) Run")
+                Text("\(daypart) \(ActivityScreenConstants.run)")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white)
                 
-                Text("Today, \(timeString)")
+                Text("\(ActivityScreenConstants.today), \(timeString)")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
             }
@@ -57,12 +56,12 @@ struct ActivityScreenBottomCard: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.white)
                     .contentTransition(.numericText())
-                Text("km")
+                Text(ActivityScreenConstants.kmeter)
                     .font(.system(size: 17, weight: .bold))
                     .foregroundStyle(.white)
             }
             
-            Image(systemName: "chevron.right")
+            Image(systemName: ActivityScreenConstants.chevronRightImage)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
         }
