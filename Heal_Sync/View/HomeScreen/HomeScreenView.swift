@@ -80,7 +80,7 @@ struct HomeScreenView: View {
                                     Text(HomeScreenConstants.Banner.buttonTitle)
                                         .font(.system(size: 13, weight: .semibold))
                                     
-                                    Image(systemName: WelcomePageConstants.Images.arrowRight)
+                                    Image(systemName: WelcomeScreenConstants.Images.arrowRight)
                                         .font(.system(size: 12, weight: .semibold))
                                 }
                                 .foregroundColor(.black)
@@ -173,7 +173,7 @@ struct HomeScreenView: View {
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Color(red: 0.20, green: 0.77, blue: 0.60))
                             
-                            Image(systemName: WelcomePageConstants.Images.arrowRight)
+                            Image(systemName: WelcomeScreenConstants.Images.arrowRight)
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Color(red: 0.20, green: 0.77, blue: 0.60))
                         }
@@ -183,18 +183,18 @@ struct HomeScreenView: View {
                         // Steps Card (live today count)
                         HomeScreenOverviewCard1(
                             imageName: "figure.run",
-                            titleText: "Steps",
+                            titleText: HomeScreenConstants.Stats.steps,
                             descriptionText: activityViewModel.todayStepsFormatted,
-                            goalText: "/10,000",
+                            goalText: "/\(ActivityViewModel.dayStepGoal.formatted())",
                             progress: activityViewModel.todayStepsProgress
                         )
 
                         // Heart Rate Card
                         HomeScreenOverviewCard2(
                             imageName: "heart.fill",
-                            titleText: "Heart Rate",
-                            descriptionText: "72 bpm",
-                            resultText: "Normal",
+                            titleText: HomeScreenConstants.Stats.heartRate,
+                            descriptionText: "72 \(HomeScreenConstants.Stats.bpmUnit)",
+                            resultText: HomeScreenConstants.Stats.normalBadge,
                             imageColor: Color.red
                         )
                     }
@@ -203,9 +203,9 @@ struct HomeScreenView: View {
                         // Calories Card (live today count)
                         HomeScreenOverviewCard1(
                             imageName: "flame.fill",
-                            titleText: "Calories",
+                            titleText: HomeScreenConstants.Stats.calories,
                             descriptionText: activityViewModel.todayCaloriesFormatted,
-                            goalText: "of 500 kcal",
+                            goalText: "of \(ActivityViewModel.dayCalorieGoal.formatted()) \(HomeScreenConstants.Stats.kcalUnit)",
                             progress: activityViewModel.todayCaloriesProgress,
                             progressColor: Color.orange,
                             imageColor: Color.red
@@ -214,9 +214,9 @@ struct HomeScreenView: View {
                         // Sleep Card
                         HomeScreenOverviewCard2(
                             imageName: "moon.stars.fill",
-                            titleText: "Sleep",
+                            titleText: HomeScreenConstants.Stats.sleep,
                             descriptionText: "7 h 20 m",
-                            resultText: "Good",
+                            resultText: HomeScreenConstants.Stats.goodBadge,
                             imageColor: Color.purple
                         )
                     }

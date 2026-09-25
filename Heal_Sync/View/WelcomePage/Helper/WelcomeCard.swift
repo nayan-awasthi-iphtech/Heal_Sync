@@ -61,7 +61,7 @@ struct WelcomeCard: View {
 #Preview {
     WelcomeCard(
         imageName: "chart.bar.fill",
-        titleText: WelcomePageConstants.Card1.title,
-        descriptionText: WelcomePageConstants.Card1.des
+        titleText: WelcomeScreenConstants.Card1.title,
+        descriptionText: WelcomeScreenConstants.Card1.des
     )
 }

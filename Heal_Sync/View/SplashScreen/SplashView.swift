@@ -59,16 +59,16 @@ struct SplashView: View {
                 }
                 
                 HStack(spacing: 0) {
-                    Text("Heal")
+                    Text(SplashScreenConstants.brandPart1)
                         .font(.system(size: 36, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Sync")
+                    Text(SplashScreenConstants.brandPart2)
                         .font(.system(size: 36, weight: .bold))
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                 }
                 
-                Text("Your Personal Health Companion")
+                Text(SplashScreenConstants.tagline)
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color.white.opacity(0.6))
             }

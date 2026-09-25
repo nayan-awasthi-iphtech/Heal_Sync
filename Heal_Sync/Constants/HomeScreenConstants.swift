@@ -28,6 +28,20 @@ struct HomeScreenConstants {
         static let seeAll = "See All"
     }
     
+    // Today's stat cards (values with numbers stay inline in the view)
+    struct Stats {
+        static let steps = "Steps"
+        static let heartRate = "Heart Rate"
+        static let calories = "Calories"
+        static let sleep = "Sleep"
+        
+        static let normalBadge = "Normal"
+        static let goodBadge = "Good"
+        
+        static let bpmUnit = "bpm"
+        static let kcalUnit = "kcal"
+    }
+    
     struct Icons {
         static let greetingEmoji = "hands.clap"
         static let ecgWaveform = "waveform.path.ecg"

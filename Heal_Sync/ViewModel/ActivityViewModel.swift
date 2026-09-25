@@ -10,9 +10,13 @@ import Combine
 
 final class ActivityViewModel: ObservableObject {
 
-    // MARK: - Published Properties
-    @Published var selectedTab: String = "Day"
-    let options = ["Day", "Week", "Month"]
+    // Published Properties (options double as logic keys — keep values in sync)
+    @Published var selectedTab: String = ActivityScreenConstants.day
+    let options = [
+        ActivityScreenConstants.day,
+        ActivityScreenConstants.week,
+        ActivityScreenConstants.month
+    ]
 
     @Published private(set) var currentSteps: Int = 0
     @Published private(set) var distanceMeters: Double = 0.0
@@ -38,7 +42,7 @@ final class ActivityViewModel: ObservableObject {
         setupObservers()
     }
 
-    // MARK: - Bindings
+    // Bindings
     private func setupObservers() {
         // Sync steps from sensor layer and persist today's metrics
         pedometer.$currentSteps
@@ -69,7 +73,7 @@ final class ActivityViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    // MARK: - Computed Properties
+    //  Computed Properties
     var targetGoal: Int {
         switch selectedTab {
         case "Day": return 10000

@@ -12,20 +12,20 @@ struct HomeHeaderView: View {
         HStack(alignment: .center, spacing: 10) { 
             HStack(spacing: 12) {
                 ZStack {
-                    Image(systemName: WelcomePageConstants.Images.heartFill)
+                    Image(systemName: WelcomeScreenConstants.Images.heartFill)
                         .resizable()
                         .font(.title)
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         .frame(width: 38, height: 34)
                     
-                    Image(systemName: WelcomePageConstants.Images.ecgWaveform)
+                    Image(systemName: WelcomeScreenConstants.Images.ecgWaveform)
                         .resizable()
                         .font(.caption)
                         .foregroundColor(.black)
                         .frame(width: 38, height: 18)
                 }
                 
-                Text(WelcomePageConstants.appName)
+                Text(WelcomeScreenConstants.appName)
                     .fontWeight(.bold)
                     .font(.system(size: 30, design: .default))
                     .foregroundStyle(Color.white)

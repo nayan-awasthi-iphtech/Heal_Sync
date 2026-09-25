@@ -32,22 +32,22 @@ struct MainTabView: View {
         TabView {
             HomeScreenView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(TabBarConstants.home, systemImage: "house.fill")
                 }
             
             ActivityScreenView()
                 .tabItem {
-                    Label("Activity", systemImage: "figure.run")
+                    Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
             
             InsightsScreenView()
                 .tabItem {
-                    Label("Health", systemImage: "heart.fill")
+                    Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
             
             ProfileScreenView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label(TabBarConstants.profile, systemImage: "person.fill")
                 }
         }
         .ignoresSafeArea(edges: .bottom)

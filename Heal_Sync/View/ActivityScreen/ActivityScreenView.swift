@@ -23,7 +23,7 @@ struct ActivityScreenView: View {
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                HeaderView(title: "Activity", subTitle: "Stay Active, Stay Healthy")
+                HeaderView(title: ActivityScreenConstants.mainTitle, subTitle: ActivityScreenConstants.subtitle)
 
                 PickerView(
                     selection: $viewModel.selectedTab,
@@ -45,22 +45,22 @@ struct ActivityScreenView: View {
                         ActivityScreenComponent(
                             ImageName: "mapSymbol",
                             titleText: viewModel.distanceKmFormatted,
-                            unitText: "km"
+                            unitText: ActivityScreenConstants.km
                         )
-
+                        
                         ActivityScreenComponent(
                             ImageName: "flame",
                             isSystemImage: true,
                             titleText: viewModel.activeCaloriesFormatted,
-                            unitText: "kcal",
+                            unitText: ActivityScreenConstants.kcal,
                             ImageColor: .red
                         )
-
+                        
                         ActivityScreenComponent(
                             ImageName: "stopwatch",
                             isSystemImage: true,
                             titleText: viewModel.activeMinutesFormatted,
-                            unitText: "min"
+                            unitText: ActivityScreenConstants.min
                         )
                     }
 
