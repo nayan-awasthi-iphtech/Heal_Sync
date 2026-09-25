@@ -10,7 +10,7 @@ import SwiftUI
 struct InsightsScreenBottomCard: View {
     var body: some View {
         HStack(spacing: 20){
-            Image(systemName: "lightbulb.fill")
+            Image(systemName: InsightsScreenConstants.Images.bulb)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundColor(.yellow)
                 .padding(12)

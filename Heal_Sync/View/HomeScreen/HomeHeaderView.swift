@@ -42,7 +42,7 @@ struct HomeHeaderView: View {
                     .foregroundStyle(.white)
             }
             
-            Image("HomePageImage")
+            Image(systemName: "person.fill")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 50, height: 50)

@@ -13,6 +13,7 @@ struct MainTabView: View {
     /// (Day/Week/Month) observe the same instance, so there is exactly one
     /// pedometer stream and one source of truth.
     @StateObject private var activityViewModel = ActivityViewModel()
+    @Environment(\.scenePhase) private var scenePhase
     
     init() {
         // Sets up dark background for the TabBar to match your theme
@@ -57,6 +58,16 @@ struct MainTabView: View {
         }
         .onDisappear {
             activityViewModel.onDisappear()
+        }
+        // Pause counting when the app is backgrounded/closed, resume on return.
+        // The old == .background guard avoids a double load on fresh launch
+        // (onAppear already loads).
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                activityViewModel.appDidEnterBackground()
+            } else if newPhase == .active, oldPhase == .background {
+                activityViewModel.appBecameActive()
+            }
         }
     }
 }

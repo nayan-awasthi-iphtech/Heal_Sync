@@ -31,4 +31,18 @@ struct InsightsScreenConstants {
 
     static let keepItUp = "Keep it up!"
     static let healthyRange = "Your hear rate is in healthy range"
+
+    // Icons (SF Symbols)
+
+    struct Images {
+        static let heartFill = "heart.fill"
+        static let chevronRight = "chevron.right"
+        static let trendUp = "arrow.up"
+        static let bulb = "lightbulb.fill"
+    }
+
+    // Change badge & chart scale (numeric display tokens)
+
+    static let changePercent = "2%"
+    static let chartLevels = ["120", "80", "40", "0"]
 }

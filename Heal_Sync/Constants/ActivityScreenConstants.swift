@@ -25,6 +25,8 @@ struct ActivityScreenConstants {
     // Progress Bar Text
     
     static let steps = "Steps"
+    static let startTracking = "Start Tracking"
+    static let stopTracking = "Stop"
     
     // Health Stats text
     

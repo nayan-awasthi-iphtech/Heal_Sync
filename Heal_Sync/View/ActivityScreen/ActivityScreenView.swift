@@ -37,11 +37,19 @@ struct ActivityScreenView: View {
                 // Circular Progress Ring displaying live/calculated steps & dynamic goal
                 StepProgressCard(
                     currentSteps: viewModel.currentSteps,
-                    goalSteps: viewModel.targetGoal
+                    goalSteps: viewModel.targetGoal,
+                    isTracking: viewModel.isTracking,
+                    onToggleTracking: {
+                        if viewModel.isTracking {
+                            viewModel.stopTracking()
+                        } else {
+                            viewModel.startTracking()
+                        }
+                    }
                 )
 
                 VStack(spacing: 25) {
-                    HStack(spacing: 40) {
+                    HStack(spacing: 100) {
                         ActivityScreenComponent(
                             ImageName: "mapSymbol",
                             titleText: viewModel.distanceKmFormatted,
