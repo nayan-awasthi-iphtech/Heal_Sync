@@ -6,20 +6,9 @@
 
 import SwiftUI
 
-enum AuthMode: String, CaseIterable {
-    case login = "Log In"
-    case signup = "Sign Up"
-}
-
 struct AuthView: View {
     
-    @State private var authmode: AuthMode = .login
-    
-    // Form Input States
-    @State private var fullName = ""
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isPasswordVisible = false
+    @StateObject private var authViewModel = AuthViewModel()
     
     init() {
         UISegmentedControl.appearance().backgroundColor = UIColor(red: 0.08, green: 0.22, blue: 0.20, alpha: 0.6)
@@ -43,23 +32,63 @@ struct AuthView: View {
                 
                 ScrollView {
                     VStack(spacing: 16) {
-                        Image("ImageLogin")
-                            .resizable()
-                            .frame(width: 360, height: 170)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .brightness(0.1)
+                        ZStack {
+                            // Outer Glow Ring
+                            Circle()
+                                .fill(Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.15))
+                                .frame(width: 140, height: 140)
+                                .blur(radius: 10)
+                            
+                            // Dark Background Circle with Gradient Border
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.08, green: 0.22, blue: 0.20),
+                                            Color(red: 0.04, green: 0.10, blue: 0.12)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 130, height: 130)
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(red: 0.30, green: 0.92, blue: 0.65),
+                                                    Color.white.opacity(0.1)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 2
+                                        )
+                                )
+                                .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5)
+                            
+                            // App Symbol (Heart & Sync Indicator)
+                            Image(systemName: "waveform.path.ecg")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
+                                .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                        }
+                        .padding(.top, 10)
+                        .padding(.bottom, 8)
                         
-                        Text(authmode == .login ? "Welcome Back" : "Start Your Journey")
+                        Text(authViewModel.authMode == .login ? "Welcome Back" : "Start Your Journey")
                             .foregroundStyle(.white)
                             .font(.system(size: 28, weight: .bold))
                         
-                        Text(authmode == .login ? "Sync your health data & stats" : "Create an account to track your activity")
+                        Text(authViewModel.authMode == .login ? "Sync your health data & stats" : "Create an account to track your activity")
                             .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             .fontWeight(.semibold)
-                            .font(.system(size: 15)) // Adjusted to fit nicely without clipping
+                            .font(.system(size: 15))
                         
-                        // Fixed Picker: Bound directly to $authmode
-                        Picker("Select View", selection: $authmode) {
+                       // Picker
+                        Picker("Select View", selection: $authViewModel.authMode) {
                             ForEach(AuthMode.allCases, id: \.self) { mode in
                                 Text(mode.rawValue).tag(mode)
                             }
@@ -67,37 +96,37 @@ struct AuthView: View {
                         .pickerStyle(.segmented)
                         .padding(.horizontal, 10)
                         
-                        // MARK: - Form Fields
+                        // Form Fields
                         VStack(spacing: 16) {
                             
                             // Full Name Field (Sign Up Only)
-                            if authmode == .signup {
+                            if authViewModel.authMode == .signup {
                                 CustomTextField(
                                     iconName: "person.fill",
                                     placeholder: "Full Name",
-                                    text: $fullName
+                                    text: $authViewModel.fullName
                                 )
                                 .transition(.move(edge: .top).combined(with: .opacity))
                             }
                             
-                            // Email Field (Both)
+                            // Email Field
                             CustomTextField(
                                 iconName: "envelope.fill",
                                 placeholder: "Email Address",
-                                text: $email
+                                text: $authViewModel.email
                             )
                             .textInputAutocapitalization(.never)
                             .keyboardType(.emailAddress)
                             
-                            // Password Field (Both)
+                            // Password Field
                             CustomPasswordField(
                                 placeholder: "Password",
-                                password: $password,
-                                isVisible: $isPasswordVisible
+                                password: $authViewModel.password,
+                                isVisible: $authViewModel.isPasswordVisible
                             )
                             
-                            // Forgot Password Link (Login Only)
-                            if authmode == .login {
+                            // Forgot Password Link for Login
+                            if authViewModel.authMode == .login {
                                 HStack {
                                     Spacer()
                                     Button("Forgot Password?") {
@@ -110,11 +139,11 @@ struct AuthView: View {
                         }
                         .padding(.horizontal, 10)
                         
-                        // MARK: - Action Button
+                        // Button
                         Button(action: {
-                            // Action for Login or Sign Up
+                            authViewModel.handlePrimaryAction()
                         }) {
-                            Text(authmode == .login ? "Log In" : "Create Account")
+                            Text(authViewModel.authMode == .login ? "Log In" : "Create Account")
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -130,12 +159,21 @@ struct AuthView: View {
                         Spacer()
                     }
                 }
+                .alert("Authentication Error", isPresented: $authViewModel.showAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(authViewModel.alertMessage)
+                }
+            }
+            .navigationDestination(isPresented: $authViewModel.isAuthenticated) {
+                MainTabView()
+                    .navigationBarBackButtonHidden(true)
             }
         }
     }
 }
 
-// MARK: - Custom Reusable Input Fields
+// Input Field component
 struct CustomTextField: View {
     let iconName: String
     let placeholder: String
