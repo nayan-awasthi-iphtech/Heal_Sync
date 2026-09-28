@@ -64,6 +64,11 @@ struct InsightsScreenView: View {
                         .padding(.top, 8)
                         .disabled(heartRateManager.isMeasuring)
                         .opacity(heartRateManager.isMeasuring ? 0.5 : 1.0)
+                        Text(InsightsScreenConstants.fitnessDisclaimer)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.55))
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 4)
                     }
 
                     if selectedTab == InsightsScreenConstants.calories {
@@ -122,19 +127,10 @@ struct InsightsScreenView: View {
                             ProgressView(value: heartRateManager.scanProgress)
                                 .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
                                 .padding(.horizontal, 8)
-                            #if targetEnvironment(simulator)
-                            Button(action: {
-                                heartRateManager.simulateFingerRemove()
-                            }) {
-                                Text("Simulate Finger Off")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.black)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(Color(red: 0.30, green: 0.92, blue: 0.65))
-                                    .cornerRadius(10)
-                            }
-                            #endif
+                            Text(InsightsScreenConstants.fitnessDisclaimer)
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(.white.opacity(0.5))
+                                .multilineTextAlignment(.center)
                             Button(action: {
                                 heartRateManager.cancelMeasurement()
                             }) {

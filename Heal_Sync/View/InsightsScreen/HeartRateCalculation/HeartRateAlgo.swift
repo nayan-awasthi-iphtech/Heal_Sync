@@ -27,7 +27,7 @@ extension HeartRateManager {
         }
         let timeSinceLastPeak = timestamp - lastPeakMediaTime
         if smooth > lastRedValue {
-            if !isRising {
+            if !isRising {   
                 riseValley = lastRedValue
                 isRising = true
             }
@@ -52,8 +52,11 @@ extension HeartRateManager {
                                 self?.scanProgress = progress
                             }
                             if self.lastSavedAt == nil || now.timeIntervalSince(self.lastSavedAt!) >= 15 {
-                                HeartRateStore.shared.saveReading(bpm: calculatedBPM, at: now)
                                 self.lastSavedAt = now
+                                let bpmToSave = calculatedBPM
+                                DispatchQueue.main.async {
+                                    HeartRateStore.shared.saveReading(bpm: bpmToSave, at: now)
+                                }
                             }
                             if isComplete {
                                 self.finishMeasurement()

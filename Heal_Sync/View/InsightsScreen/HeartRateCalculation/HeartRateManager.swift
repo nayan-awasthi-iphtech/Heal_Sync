@@ -30,18 +30,10 @@ class HeartRateManager: NSObject, ObservableObject {
     private let maxNoFingerFrames = 45
     private let requiredIntervals = 8
     private var measurementTimer: Timer?
-    private var mockTimer: Timer?
-    private var mockStep: Int = 0
-    private var mockNoFinger: Bool = false
 
     func startMeasurement() {
-        guard !isMeasuring else { return }
+        guard !captureSession.isRunning, !isMeasuring else { return }
         errorMessage = nil
-        #if targetEnvironment(simulator)
-        startMockMeasurement()
-        return
-        #endif
-        guard !captureSession.isRunning else { return }
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             beginScan()
@@ -77,10 +69,6 @@ class HeartRateManager: NSObject, ObservableObject {
     }
 
     func finishMeasurement() {
-        #if targetEnvironment(simulator)
-        finishMockMeasurement()
-        return
-        #endif
         measurementTimer?.invalidate()
         measurementTimer = nil
         guard captureSession.isRunning else {
@@ -106,22 +94,6 @@ class HeartRateManager: NSObject, ObservableObject {
     }
 
     func cancelMeasurement() {
-        #if targetEnvironment(simulator)
-        mockTimer?.invalidate()
-        mockTimer = nil
-        measurementTimer?.invalidate()
-        measurementTimer = nil
-        DispatchQueue.main.async { [weak self] in
-            self?.isMeasuring = false
-            self?.fingerDetected = false
-            self?.currentBPM = 0
-            self?.scanProgress = 0
-            self?.resetAlgorithm()
-            self?.mockStep = 0
-            self?.mockNoFinger = false
-        }
-        return
-        #endif
         measurementTimer?.invalidate()
         measurementTimer = nil
         guard captureSession.isRunning else {
@@ -248,78 +220,7 @@ class HeartRateManager: NSObject, ObservableObject {
         }
     }
 
-    func simulateFingerRemove() {
-        mockNoFinger = true
-        consecutiveNoFingerFrames = 0
-        DispatchQueue.main.async { [weak self] in
-            self?.fingerDetected = false
-        }
-    }
-
-    private func startMockMeasurement() {
-        currentBPM = 0
-        scanProgress = 0
-        fingerDetected = false
-        resetAlgorithm()
-        didDetectFingerOnce = false
-        consecutiveNoFingerFrames = 0
-        mockStep = 0
-        mockNoFinger = false
-        isMeasuring = true
-        mockTimer?.invalidate()
-        measurementTimer?.invalidate()
-        mockTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { [weak self] _ in
-            self?.mockTick()
-        }
-        measurementTimer = Timer.scheduledTimer(withTimeInterval: maxScanDuration, repeats: false) { [weak self] _ in
-            self?.finishMockMeasurement()
-        }
-    }
-
-    private func mockTick() {
-        guard isMeasuring else { return }
-        if mockNoFinger {
-            fingerDetected = false
-            consecutiveNoFingerFrames += 1
-            if consecutiveNoFingerFrames >= 3 {
-                finishMockMeasurement()
-            }
-            return
-        }
-        mockStep += 1
-        if mockStep < 2 {
-            fingerDetected = false
-            return
-        }
-        fingerDetected = true
-        didDetectFingerOnce = true
-        consecutiveNoFingerFrames = 0
-        let bpm = max(65, min(95, 74 + (mockStep % 5) + Int.random(in: -3...3)))
-        currentBPM = bpm
-        scanProgress = min(1.0, Double(mockStep) / 10.0)
-        if mockStep >= 10 {
-            finishMockMeasurement()
-        }
-    }
-
-    private func finishMockMeasurement() {
-        mockTimer?.invalidate()
-        mockTimer = nil
-        measurementTimer?.invalidate()
-        measurementTimer = nil
-        if currentBPM > 0 {
-            HeartRateStore.shared.saveReading(bpm: currentBPM)
-        }
-        isMeasuring = false
-        fingerDetected = false
-        scanProgress = 1
-        resetAlgorithm()
-        mockStep = 0
-        mockNoFinger = false
-    }
-
     deinit {
-        mockTimer?.invalidate()
         measurementTimer?.invalidate()
         if captureSession.isRunning {
             captureSession.stopRunning()

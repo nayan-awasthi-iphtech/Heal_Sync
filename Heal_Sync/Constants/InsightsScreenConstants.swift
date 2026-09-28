@@ -30,6 +30,7 @@ struct InsightsScreenConstants {
     static let cameraDeniedMessage = "Camera access is off. Allow it in Settings to measure heart rate."
     static let scanningText = "Scanning… keep your finger steady"
     static let placeFingerText = "Cover the camera and flash with your finger"
+    static let fitnessDisclaimer = "For fitness use only. Not for medical use."
 
     // Insight card
 
