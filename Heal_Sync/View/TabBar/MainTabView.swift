@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct MainTabView: View {
+
+    @StateObject private var activityViewModel = ActivityViewModel()
+    @StateObject private var currentUser = CurrentUserViewModel()
+    @Environment(\.scenePhase) private var scenePhase
     
     init() {
         // Sets up dark background for the TabBar to match your theme
@@ -27,71 +31,45 @@ struct MainTabView: View {
         TabView {
             HomeScreenView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(TabBarConstants.home, systemImage: "house.fill")
                 }
             
-            ActivityView()
+            ActivityScreenView()
                 .tabItem {
-                    Label("Activity", systemImage: "figure.run")
+                    Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
             
-            HealthView()
+            InsightsScreenView()
                 .tabItem {
-                    Label("Health", systemImage: "heart.fill")
+                    Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
             
-            ProfileView()
+            ProfileScreenView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label(TabBarConstants.profile, systemImage: "person.fill")
                 }
         }
-        .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
-    }
-}
-
-// Placeholder tabs
-struct ActivityView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Activity")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
+        .ignoresSafeArea(edges: .bottom)
+        .environmentObject(activityViewModel)
+        .environmentObject(currentUser)
+        .onAppear {
+            activityViewModel.onAppear()
+            currentUser.refresh()
         }
-    }
-}
-
-struct HealthView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Health")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
+        .onDisappear {
+            activityViewModel.onDisappear()
         }
-    }
-}
-
-struct ProfileView: View {
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                Text("Profile")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
-                
-                Button("Log Out") {
-                    SessionManager.shared.clearSession()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color(red: 0.30, green: 0.92, blue: 0.65))
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                activityViewModel.appDidEnterBackground()
+            } else if newPhase == .active, oldPhase == .background {
+                activityViewModel.appBecameActive()
             }
         }
     }
 }
 
-#Preview {
+#Preview{
     MainTabView()
+        .environmentObject(AuthViewModel())
 }

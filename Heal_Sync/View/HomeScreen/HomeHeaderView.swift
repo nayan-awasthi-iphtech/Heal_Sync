@@ -12,20 +12,20 @@ struct HomeHeaderView: View {
         HStack(alignment: .center, spacing: 10) { 
             HStack(spacing: 12) {
                 ZStack {
-                    Image(systemName: WelcomePageConstants.Images.heartFill)
+                    Image(systemName: WelcomeScreenConstants.Images.heartFill)
                         .resizable()
                         .font(.title)
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         .frame(width: 38, height: 34)
                     
-                    Image(systemName: WelcomePageConstants.Images.ecgWaveform)
+                    Image(systemName: WelcomeScreenConstants.Images.ecgWaveform)
                         .resizable()
                         .font(.caption)
                         .foregroundColor(.black)
                         .frame(width: 38, height: 18)
                 }
                 
-                Text(WelcomePageConstants.appName)
+                Text(WelcomeScreenConstants.appName)
                     .fontWeight(.bold)
                     .font(.system(size: 30, design: .default))
                     .foregroundStyle(Color.white)
@@ -42,16 +42,35 @@ struct HomeHeaderView: View {
                     .foregroundStyle(.white)
             }
             
-            Image("HomePageImage")
+            Image(systemName: "person.fill")
                 .resizable()
-                .scaledToFill()
-                .frame(width: 50, height: 50)
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(.white.opacity(0.6))
+                .frame(width: 52, height: 52)
+                .background(
+                    Circle()
+                        .fill(.black.opacity(0.3))
+                )
                 .clipShape(Circle())
-                .foregroundStyle(.white).opacity(0.5)
+                .padding(.horizontal, 2)
         }
     }
 }
 
 #Preview{
-    HomeHeaderView()
+    
+    ZStack{
+        LinearGradient(
+            colors: [
+                Color(red: 0.05, green: 0.02, blue: 0.06),
+                Color(red: 0.06, green: 0.20, blue: 0.19)
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+        .ignoresSafeArea()
+        
+        HomeHeaderView()
+    }
 }

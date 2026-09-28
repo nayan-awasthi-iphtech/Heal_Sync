@@ -52,7 +52,7 @@ final class AuthViewModel: ObservableObject {
         let cleanEmail = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard let user = fetchUserFromCoreData(email: cleanEmail) else {
-            showError("No account found with this email.")
+            showError(AuthScreenConstants.noAccount)
             return
         }
         
@@ -62,7 +62,7 @@ final class AuthViewModel: ObservableObject {
             authManager.isLoggedIn = true
             isAuthenticated = true
         } else {
-            showError("Incorrect password.")
+            showError(AuthScreenConstants.wrongPassword)
         }
     }
     
@@ -73,7 +73,7 @@ final class AuthViewModel: ObservableObject {
         
         // Check if user already exists in Core Data
         if fetchUserFromCoreData(email: cleanEmail) != nil {
-            showError("An account with this email already exists.")
+            showError(AuthScreenConstants.accountExists)
             return
         }
         
@@ -92,7 +92,7 @@ final class AuthViewModel: ObservableObject {
             authManager.isLoggedIn = true
             isAuthenticated = true
         } catch {
-            showError("Failed to save account: \(error.localizedDescription)")
+            showError("\(AuthScreenConstants.saveFailedPrefix)\(error.localizedDescription)")
         }
     }
     
@@ -116,17 +116,17 @@ final class AuthViewModel: ObservableObject {
         let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
         if authMode == .signup && fullName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            showError("Please enter your full name.")
+            showError(AuthScreenConstants.nameRequired)
             return false
         }
         
         if cleanEmail.isEmpty || !cleanEmail.contains("@") {
-            showError("Please enter a valid email address.")
+            showError(AuthScreenConstants.emailInvalid)
             return false
         }
         
         if password.count < 6 {
-            showError("Password must be at least 6 characters long.")
+            showError(AuthScreenConstants.passwordTooShort)
             return false
         }
         
