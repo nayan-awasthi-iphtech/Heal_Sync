@@ -9,6 +9,8 @@ import SwiftUI
 
 struct InsightsScreenCenterCard: View {
     
+    var liveBPM: Int = 0
+    
     // Week Data
     private let weekData: [(day: String, value: Double)] = [
         (InsightsScreenConstants.weekDays[0], 62),
@@ -32,7 +34,8 @@ struct InsightsScreenCenterCard: View {
             HStack(spacing: 8) {
                 Image(systemName: InsightsScreenConstants.Images.heartFill)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(mintGreen)
+                    .foregroundColor(liveBPM > 0 ? .red : mintGreen)
+                    .animation(.easeInOut(duration: 0.5).repeatCount(liveBPM > 0 ? .max : 0), value: liveBPM)
                 
                 Text(InsightsScreenConstants.heartRate)
                     .font(.system(size: 17, weight: .semibold))
@@ -48,9 +51,9 @@ struct InsightsScreenCenterCard: View {
             // Value row: selected day value + change vs last week
             HStack(alignment: .bottom, spacing: 120) {
                 HStack(alignment: .lastTextBaseline, spacing: 4) {
-                    Text("\(Int(weekData[selectedIndex].value))")
+                    Text(liveBPM > 0 ? "\(liveBPM)" : "\(Int(weekData[selectedIndex].value))")
                         .font(.system(size: 38, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(liveBPM > 0 ? mintGreen :.white)
                         .animation(.easeInOut(duration: 0.2), value: selectedIndex)
                     Text(InsightsScreenConstants.bpmUnit)
                         .font(.system(size: 18, weight: .regular))

@@ -140,7 +140,13 @@ final class ActivityViewModel: ObservableObject {
 
     private func persistToday() {
         guard selectedTab == "Day" else { return }
-        store.saveDay(dayID: todayID, date: Date(), steps: currentSteps, distance: distanceMeters)
+        store.saveDay(
+            dayID: todayID,
+            date: Date(),
+            steps: currentSteps,
+            distance: distanceMeters,
+            calories: ActivityStore.calories(for: currentSteps)
+        )
     }
 
     private func rangeStart(for timeFrame: String, now: Date = Date()) -> Date {

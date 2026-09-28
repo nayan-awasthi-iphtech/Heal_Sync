@@ -12,6 +12,7 @@ struct HomeScreenView: View {
     // Live today tracker shared from MainTabView
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var currentUser: CurrentUserViewModel
+    var onProfileTap: () -> Void = {}
     
     var body: some View {
         ZStack {
@@ -27,7 +28,7 @@ struct HomeScreenView: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 12) {
-                    HomeHeaderView()
+                    HomeHeaderView(onProfileTap: onProfileTap)
                     
                     VStack(alignment: .leading) {
                         Text(HomeScreenConstants.Greetings.goodMorning)

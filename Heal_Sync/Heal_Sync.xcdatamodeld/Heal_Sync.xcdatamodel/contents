@@ -9,6 +9,7 @@
         <relationship name="activities" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ActivityDay" inverseName="owner" inverseEntity="ActivityDay"/>
     </entity>
     <entity name="ActivityDay" representedClassName="ActivityDay" syncable="YES" codeGenerationType="class">
+        <attribute name="calories" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="dayID" attributeType="String"/>
         <attribute name="distance" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>

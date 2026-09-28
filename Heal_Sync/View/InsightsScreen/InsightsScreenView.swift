@@ -9,6 +9,11 @@ import SwiftUI
 
 struct InsightsScreenView: View {
     
+    @StateObject private var heartRateManager = HeartRateManager()
+    @EnvironmentObject var activityVM: ActivityViewModel
+    
+    @State private var showInstructionsPopup: Bool = false
+    
     @State private var selectedTab: String = InsightsScreenConstants.health
     let options = [
         InsightsScreenConstants.health,
@@ -36,15 +41,77 @@ struct InsightsScreenView: View {
                     
                     PickerView(selection: $selectedTab, options: options)
                     
-                    InsightsScreenCenterCard()
-                        .padding(.top, 8)
+                    if selectedTab == InsightsScreenConstants.calories {
+                        InsightsCaloriesCard()
+                            .padding(.top, 8)
+                    } else if selectedTab == InsightsScreenConstants.health {
+                        InsightsScreenCenterCard(liveBPM: heartRateManager.currentBPM)
+                            .padding(.top, 8)
+                    } else {
+                        InsightsSleepCard()
+                            .padding(.top, 8)
+                    }
                     
-                    InsightsScreenBottomCard()
+                    if selectedTab == InsightsScreenConstants.health {
+                        Button(action: {
+                            heartRateManager.startMeasurement()
+                        }) {
+                            HStack {
+                                Image(systemName: "hand.point.up.fill")
+                                Text("Start Pulse Scan")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.black)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(red: 0.30, green: 0.92, blue: 0.65)) // mintGreen
+                            .cornerRadius(14)
+                            .padding(.horizontal, 16)
+                        }
+                        .padding(.top, 8)
+                    }
+                    
+                    if selectedTab == InsightsScreenConstants.calories {
+                        InsightsScreenBottomCard(
+                            title: InsightsScreenConstants.caloriesKeepItUp,
+                            message: calorieInsightMessage
+                        )
                         .padding(.top, 10)
+                    } else {
+                        InsightsScreenBottomCard()
+                            .padding(.top, 10)
+                    }
                     
                     Spacer()
                 }
             }
+        }
+        .overlay(
+            Group {
+                if showInstructionsPopup {
+                    InstructionPopupCard (
+                        onStart: {
+                            withAnimation{ showInstructionsPopup = true }
+                            heartRateManager.startMeasurement()
+                        },
+                        onCancel: {
+                            withAnimation{ showInstructionsPopup = false }
+                        }
+                    )
+                }
+            }
+        )
+    }
+
+    private var calorieInsightMessage: String {
+        let today = activityVM.todayCaloriesValue
+        let goal = ActivityViewModel.dayCalorieGoal
+        if today <= 0 {
+            return "No calories burned yet today. Start tracking to see progress."
+        } else if today >= goal {
+            return "Goal reached — \(today) of \(goal) kcal burned today."
+        } else {
+            return "\(today) of \(goal) kcal — keep moving to hit your goal."
         }
     }
 }
@@ -61,5 +128,6 @@ struct InsightsScreenView: View {
         )
         .ignoresSafeArea()
         InsightsScreenView()
+            .environmentObject(ActivityViewModel())
     }
 }

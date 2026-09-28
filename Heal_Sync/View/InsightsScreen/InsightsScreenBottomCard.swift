@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct InsightsScreenBottomCard: View {
+    var title: String = InsightsScreenConstants.keepItUp
+    var message: String = InsightsScreenConstants.healthyRange
     var body: some View {
         HStack(spacing: 20){
             Image(systemName: InsightsScreenConstants.Images.bulb)
@@ -21,21 +23,23 @@ struct InsightsScreenBottomCard: View {
                 )
             
             VStack(alignment: .leading, spacing: 5){
-                Text(InsightsScreenConstants.keepItUp)
+                Text(title)
                     .font(.system(size: 21, weight: .medium))
                     .foregroundStyle(.white)
                 
-                Text(InsightsScreenConstants.healthyRange)
+                Text(message)
                     .font(.system(size: 17))
                     .foregroundStyle(.white)
                 
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 17)
                 .fill(Color(red: 0.07, green: 0.14, blue: 0.16))
         )
+        .padding(.horizontal, 16)
     }
 }
 

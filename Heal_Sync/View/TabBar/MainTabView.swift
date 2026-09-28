@@ -11,6 +11,7 @@ struct MainTabView: View {
 
     @StateObject private var activityViewModel = ActivityViewModel()
     @StateObject private var currentUser = CurrentUserViewModel()
+    @State private var selectedTab = 0
     @Environment(\.scenePhase) private var scenePhase
     
     init() {
@@ -28,23 +29,27 @@ struct MainTabView: View {
     }
     
     var body: some View {
-        TabView {
-            HomeScreenView()
+        TabView(selection: $selectedTab) {
+            HomeScreenView(onProfileTap: { selectedTab = 3 })
+                .tag(0)
                 .tabItem {
                     Label(TabBarConstants.home, systemImage: "house.fill")
                 }
             
             ActivityScreenView()
+                .tag(1)
                 .tabItem {
                     Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
             
             InsightsScreenView()
+                .tag(2)
                 .tabItem {
                     Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
             
             ProfileScreenView()
+                .tag(3)
                 .tabItem {
                     Label(TabBarConstants.profile, systemImage: "person.fill")
                 }
