@@ -11,18 +11,22 @@ struct InsightsScreenCenterCard: View {
     
     var liveBPM: Int = 0
     
-    // Week Data
-    private let weekData: [(day: String, value: Double)] = [
-        (InsightsScreenConstants.weekDays[0], 62),
-        (InsightsScreenConstants.weekDays[1], 70),
-        (InsightsScreenConstants.weekDays[2], 64),
-        (InsightsScreenConstants.weekDays[3], 58),
-        (InsightsScreenConstants.weekDays[4], 72),
-        (InsightsScreenConstants.weekDays[5], 52),
-        (InsightsScreenConstants.weekDays[6], 60)
-    ]
+    @State private var weekBPM: [Double] = Array(repeating: 0, count: 7)
+    @State private var weekDayLabels: [String] = InsightsScreenConstants.weekDays
+    @State private var lastWeekAvg: Double = 0
+    private let store = HeartRateStore.shared
+    private var weekData: [(day: String, value: Double)] {
+        zip(weekDayLabels, weekBPM).map { (day: $0, value: $1) }
+    }
+    private var hasData: Bool { weekBPM.contains { $0 > 0 } || liveBPM > 0 }
+    private var changeText: String {
+        let thisAvg = weekBPM.filter { $0 > 0 }.reduce(0, +) / max(1, Double(weekBPM.filter { $0 > 0 }.count))
+        guard lastWeekAvg > 0, thisAvg > 0 else { return InsightsScreenConstants.changePercent }
+        let pct = (thisAvg - lastWeekAvg) / lastWeekAvg * 100
+        return "\(pct >= 0 ? "+" : "")\(Int(pct))%"
+    }
     private let maxValue: Double = 120
-    @State private var selectedIndex: Int = 4
+    @State private var selectedIndex: Int = 6
     
     private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
     private let darkTeal = Color(red: 0.07, green: 0.14, blue: 0.16)
@@ -65,7 +69,7 @@ struct InsightsScreenCenterCard: View {
                     HStack(spacing: 3) {
                         Image(systemName: InsightsScreenConstants.Images.trendUp)
                             .font(.system(size: 13, weight: .bold))
-                        Text(InsightsScreenConstants.changePercent)
+                        Text(changeText)
                             .font(.system(size: 15, weight: .bold))
                     }
                     .foregroundColor(mintGreen)
@@ -75,6 +79,12 @@ struct InsightsScreenCenterCard: View {
                         .foregroundColor(.white)
                 }
                 .padding(.bottom, 4)
+            }
+            
+            if !hasData {
+                Text(InsightsScreenConstants.heartEmptyState)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(.white.opacity(0.6))
             }
             
             // Bar chart with Y-axis grid lines
@@ -205,6 +215,31 @@ struct InsightsScreenCenterCard: View {
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal, 16)
+        .onAppear { refresh() }
+        .onChange(of: liveBPM) { _, _ in refresh(preserveSelection: true) }
+    }
+    
+    private func refresh(preserveSelection: Bool = false) {
+        let days = store.dailyAverageBPM(end: Date(), days: 7)
+        weekBPM = days.map { $0.bpm }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        weekDayLabels = days.map { String(formatter.string(from: $0.date).prefix(3)) }
+        while weekBPM.count < 7 { weekBPM.insert(0, at: 0); weekDayLabels.insert("", at: 0) }
+        if !preserveSelection {
+            selectedIndex = 6
+        } else if selectedIndex >= weekBPM.count {
+            selectedIndex = 6
+        }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        if let prevEnd = calendar.date(byAdding: .day, value: -7, to: today) {
+            let prevDays = store.dailyAverageBPM(end: prevEnd, days: 7)
+            let vals = prevDays.map { $0.bpm }.filter { $0 > 0 }
+            lastWeekAvg = vals.isEmpty ? 0 : vals.reduce(0, +) / Double(vals.count)
+        } else {
+            lastWeekAvg = 0
+        }
     }
     
     private func barHeight(for value: Double) -> CGFloat {

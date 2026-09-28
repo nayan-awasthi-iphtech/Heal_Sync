@@ -6,7 +6,11 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="password" optional="YES" attributeType="String"/>
+        <attribute name="profileImage" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="heightCm" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="weightKg" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="activities" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ActivityDay" inverseName="owner" inverseEntity="ActivityDay"/>
+        <relationship name="heartReadings" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="HeartReading" inverseName="owner" inverseEntity="HeartReading"/>
     </entity>
     <entity name="ActivityDay" representedClassName="ActivityDay" syncable="YES" codeGenerationType="class">
         <attribute name="calories" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -16,5 +20,11 @@
         <attribute name="steps" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="activities" inverseEntity="User"/>
+    </entity>
+    <entity name="HeartReading" representedClassName="HeartReading" syncable="YES" codeGenerationType="class">
+        <attribute name="bpm" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="heartReadings" inverseEntity="User"/>
     </entity>
 </model>

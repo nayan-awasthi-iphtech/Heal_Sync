@@ -49,12 +49,16 @@ struct ActivityScreenView: View {
                 )
 
                 VStack(spacing: 25) {
-                    HStack(spacing: 100) {
+                    HStack(spacing: 50) {
                         ActivityScreenStatsComponent(
                             ImageName: ActivityScreenConstants.StatsImages.mapPointer,
                             titleText: viewModel.distanceKmFormatted,
                             unitText: ActivityScreenConstants.km
                         )
+                        
+                        Rectangle()
+                            .fill(Color.white)
+                            .frame(width: 2, height: 80)
                         
                         ActivityScreenStatsComponent(
                             ImageName: ActivityScreenConstants.StatsImages.flame,
@@ -64,6 +68,10 @@ struct ActivityScreenView: View {
                             ImageColor: .red
                         )
                         
+                        Rectangle()
+                            .fill(Color.white)
+                            .frame(width: 2, height: 80)
+                        
                         ActivityScreenStatsComponent(
                             ImageName: ActivityScreenConstants.StatsImages.watch,
                             isSystemImage: true,
@@ -71,6 +79,11 @@ struct ActivityScreenView: View {
                             unitText: ActivityScreenConstants.min
                         )
                     }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color(red: 0.06, green: 0.10, blue: 0.15))
+                    )
 
                     ActivityScreenBottomCard(
                         distanceKm: viewModel.distanceKmFormatted,

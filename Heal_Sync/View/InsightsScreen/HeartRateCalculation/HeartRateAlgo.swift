@@ -1,69 +1,85 @@
-//
-//  HeartRateAlgo.swift
-//  Heal_Sync
-//
-//  Created by iPHTech 30 on 28/09/26.
-//
-
 import Foundation
 
 extension HeartRateManager {
-    
-    // Structures to hold peak tracking state stored inside HeartRateManager
-    private struct PulseState {
-        static var lastRedValue: Float = 0.0
-        static var lastPeakTime = Date()
-        static var isRising: Bool = false
-        static var validIntervals: [Double] = []
-    }
 
-    /// Called from Part 2 whenever `averageRed > 180` (finger detected)
-    func processPulse(redValue: Float) {
-        let now = Date()
-        let timeSinceLastPeak = now.timeIntervalSince(PulseState.lastPeakTime)
+    private static let smoothingWindow = 5
+    private static let minPeakDelta: Float = 1.0
 
-        // 1. Detect Peak Transition: Red value was rising, and now begins to fall
-        if PulseState.isRising && redValue < PulseState.lastRedValue {
-            
-            // Valid human heart rate filter
-            if timeSinceLastPeak >= 0.33 && timeSinceLastPeak <= 1.5 {
-                
-                // Store valid peak-to-peak time interval
-                PulseState.validIntervals.append(timeSinceLastPeak)
-                
-                // Keep only the last 8 beats for a responsive, rolling average
-                if PulseState.validIntervals.count > 8 {
-                    PulseState.validIntervals.removeFirst()
-                }
-                
-                // 2. Calculate Average BPM from rolling intervals
-                let averageInterval = PulseState.validIntervals.reduce(0, +) / Double(PulseState.validIntervals.count)
-                let calculatedBPM = Int(60.0 / averageInterval)
-                
-                // Safety range check (40 - 200 BPM)
-                if calculatedBPM >= 40 && calculatedBPM <= 200 {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.currentBPM = calculatedBPM
-                    }
-                }
-            }
-            
-            // Reset peak timer
-            PulseState.lastPeakTime = now
-            PulseState.isRising = false
-            
-        } else if redValue > PulseState.lastRedValue {
-            PulseState.isRising = true
+    func processPulse(redValue: Float, timestamp: Double) {
+        redHistory.append(redValue)
+        if redHistory.count > Self.smoothingWindow {
+            redHistory.removeFirst()
         }
-
-        PulseState.lastRedValue = redValue
+        if redHistory.count < Self.smoothingWindow {
+            lastRedValue = redHistory.reduce(0, +) / Float(redHistory.count)
+            risePeak = lastRedValue
+            riseValley = lastRedValue
+            return
+        }
+        let smooth = redHistory.reduce(0, +) / Float(redHistory.count)
+        if lastPeakMediaTime == 0 {
+            lastPeakMediaTime = timestamp
+            lastRedValue = smooth
+            risePeak = smooth
+            riseValley = smooth
+            hasSignalStarted = true
+            return
+        }
+        let timeSinceLastPeak = timestamp - lastPeakMediaTime
+        if smooth > lastRedValue {
+            if !isRising {
+                riseValley = lastRedValue
+                isRising = true
+            }
+            risePeak = max(risePeak, smooth)
+        } else if smooth < lastRedValue {
+            if isRising {
+                let amplitude = risePeak - riseValley
+                if amplitude >= Self.minPeakDelta {
+                    if timeSinceLastPeak >= 0.33 && timeSinceLastPeak <= 1.5 {
+                        validIntervals.append(timeSinceLastPeak)
+                        if validIntervals.count > 8 {
+                            validIntervals.removeFirst()
+                        }
+                        let averageInterval = validIntervals.reduce(0, +) / Double(validIntervals.count)
+                        let calculatedBPM = Int(60.0 / averageInterval)
+                        if calculatedBPM >= 40 && calculatedBPM <= 200 {
+                            let progress = min(1.0, Double(validIntervals.count) / 8.0)
+                            let isComplete = validIntervals.count >= 8
+                            let now = Date()
+                            DispatchQueue.main.async { [weak self] in
+                                self?.currentBPM = calculatedBPM
+                                self?.scanProgress = progress
+                            }
+                            if self.lastSavedAt == nil || now.timeIntervalSince(self.lastSavedAt!) >= 15 {
+                                HeartRateStore.shared.saveReading(bpm: calculatedBPM, at: now)
+                                self.lastSavedAt = now
+                            }
+                            if isComplete {
+                                self.finishMeasurement()
+                            }
+                        }
+                    }
+                    lastPeakMediaTime = timestamp
+                }
+                isRising = false
+                risePeak = smooth
+                riseValley = smooth
+            }
+        }
+        lastRedValue = smooth
     }
-    
-    /// Resets algorithm memory when measurement stops or finger is removed
+
     func resetAlgorithm() {
-        PulseState.lastRedValue = 0.0
-        PulseState.lastPeakTime = Date()
-        PulseState.isRising = false
-        PulseState.validIntervals.removeAll()
+        lastRedValue = 0.0
+        lastPeakMediaTime = 0
+        isRising = false
+        validIntervals.removeAll()
+        redHistory.removeAll()
+        risePeak = 0.0
+        riseValley = 0.0
+        lastSavedAt = nil
+        consecutiveNoFingerFrames = 0
+        hasSignalStarted = false
     }
 }

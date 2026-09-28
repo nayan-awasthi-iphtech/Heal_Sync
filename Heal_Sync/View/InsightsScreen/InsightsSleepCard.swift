@@ -53,7 +53,7 @@ struct InsightsSleepCard: View {
                     .padding(.bottom, 6)
             }
 
-            // Simple goal progress (7h20m of 8h)
+            // Simple goal progress
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()

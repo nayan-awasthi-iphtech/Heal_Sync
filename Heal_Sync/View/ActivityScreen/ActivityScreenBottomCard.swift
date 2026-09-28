@@ -68,7 +68,7 @@ struct ActivityScreenBottomCard: View {
         .padding(15)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.02, green: 0.13, blue: 0.08)).opacity(0.4)
+                .fill(Color(red: 0.06, green: 0.10, blue: 0.15))
         )
         .padding(.horizontal,15)
     }

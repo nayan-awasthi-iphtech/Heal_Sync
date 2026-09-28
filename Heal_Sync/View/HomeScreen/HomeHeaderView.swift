@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeHeaderView: View {
     
     var onProfileTap: () -> Void = {}
+    @EnvironmentObject var currentUser: CurrentUserViewModel
     
     var body: some View {
         HStack(alignment: .center, spacing: 10) { 
@@ -46,18 +47,26 @@ struct HomeHeaderView: View {
             }
             
             Button(action: onProfileTap) {
-                Image(systemName: "person.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(.white.opacity(0.6))
-                    .frame(width: 52, height: 52)
-                    .background(
-                        Circle()
-                            .fill(.black.opacity(0.3))
-                    )
-                    .clipShape(Circle())
-                    .padding(.horizontal, 2)
+                Group {
+                    if let img = currentUser.profileUIImage {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                }
+                .frame(width: 52, height: 52)
+                .background(
+                    Circle()
+                        .fill(.black.opacity(0.3))
+                )
+                .clipShape(Circle())
+                .padding(.horizontal, 2)
             }
             .accessibilityLabel("Open profile")
         }
@@ -78,5 +87,6 @@ struct HomeHeaderView: View {
         .ignoresSafeArea()
         
         HomeHeaderView()
+            .environmentObject(CurrentUserViewModel())
     }
 }

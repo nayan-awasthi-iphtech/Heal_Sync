@@ -13,13 +13,7 @@ struct PersistenceController {
     @MainActor
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
-        let viewContext = result.container.viewContext
-        do {
-            try viewContext.save()
-        } catch {
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-        }
+        try? result.container.viewContext.save()
         return result
     }()
 
@@ -36,11 +30,21 @@ struct PersistenceController {
             description.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
             description.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
         }
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                print("Persistence store load error \(error), \(error.userInfo)")
             }
         })
+        if container.persistentStoreCoordinator.persistentStores.isEmpty {
+            container.persistentStoreDescriptions = [
+                NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
+            ]
+            container.loadPersistentStores(completionHandler: { (_, error) in
+                if let error = error as NSError? {
+                    print("Persistence in-memory fallback error \(error), \(error.userInfo)")
+                }
+            })
+        }
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         container.viewContext.automaticallyMergesChangesFromParent = true
     }

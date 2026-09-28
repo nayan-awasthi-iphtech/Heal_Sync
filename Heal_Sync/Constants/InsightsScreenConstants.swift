@@ -26,6 +26,10 @@ struct InsightsScreenConstants {
     static let bpmUnit = "bpm"
     static let vsLastWeek = "vs. last week"
     static let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    static let heartEmptyState = "No heart readings yet. Tap Start Pulse Scan."
+    static let cameraDeniedMessage = "Camera access is off. Allow it in Settings to measure heart rate."
+    static let scanningText = "Scanning… keep your finger steady"
+    static let placeFingerText = "Cover the camera and flash with your finger"
 
     // Insight card
 

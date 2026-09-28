@@ -15,6 +15,9 @@ final class CurrentUserViewModel: ObservableObject {
     @Published private(set) var name: String = ""
     @Published private(set) var email: String = ""
     @Published private(set) var memberSince: String = ""
+    @Published private(set) var profileImageData: Data?
+    @Published private(set) var heightCm: Double = 0
+    @Published private(set) var weightKg: Double = 0
 
     var displayName: String {
         name.isEmpty ? ProfileScreenConstants.unknownUser : name
@@ -30,6 +33,45 @@ final class CurrentUserViewModel: ObservableObject {
         name.first.map { String($0).uppercased() } ?? "•"
     }
 
+    var profileUIImage: UIImage? {
+        guard let data = profileImageData else { return nil }
+        return UIImage(data: data)
+    }
+
+    var heightFormatted: String {
+        heightCm > 0 ? String(format: "%.1f %@", heightCm, ProfileScreenConstants.cmUnit) : ProfileScreenConstants.notSet
+    }
+
+    var weightFormatted: String {
+        weightKg > 0 ? String(format: "%.1f %@", weightKg, ProfileScreenConstants.kgUnit) : ProfileScreenConstants.notSet
+    }
+
+    var bmiValue: Double {
+        guard heightCm > 0, weightKg > 0 else { return 0 }
+        let m = heightCm / 100.0
+        return weightKg / (m * m)
+    }
+
+    var bmiFormatted: String {
+        bmiValue > 0 ? String(format: "%.1f", bmiValue) : ProfileScreenConstants.notSet
+    }
+
+    var bmiCategory: String {
+        guard bmiValue > 0 else { return ProfileScreenConstants.notSet }
+        if bmiValue < 18.5 { return ProfileScreenConstants.bmiUnderweight }
+        if bmiValue < 25 { return ProfileScreenConstants.bmiHealthy }
+        if bmiValue < 30 { return ProfileScreenConstants.bmiOverweight }
+        return ProfileScreenConstants.bmiObese
+    }
+
+    var bmiCategoryColor: Color {
+        guard bmiValue > 0 else { return .gray }
+        if bmiValue < 18.5 { return .blue }
+        if bmiValue < 25 { return Color(red: 0.30, green: 0.92, blue: 0.65) }
+        if bmiValue < 30 { return .orange }
+        return .red
+    }
+
     func refresh() {
         let context = PersistenceController.shared.container.viewContext
         let sessionEmail = SessionManager.shared.activeUserEmail
@@ -38,7 +80,6 @@ final class CurrentUserViewModel: ObservableObject {
 
         var user: NSManagedObject?
 
-        // Fetch user matching active session email
         if !sessionEmail.isEmpty {
             let request = NSFetchRequest<NSManagedObject>(entityName: "User")
             request.predicate = NSPredicate(format: "email ==[c] %@", sessionEmail)
@@ -46,30 +87,22 @@ final class CurrentUserViewModel: ObservableObject {
             user = try? context.fetch(request).first
         }
 
-        // Fallback: Adopt most recently created user if session mismatch
-        if user == nil {
-            let request = NSFetchRequest<NSManagedObject>(entityName: "User")
-            request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-            request.fetchLimit = 1
-            user = try? context.fetch(request).first
-
-            if let adoptedEmail = user?.value(forKey: "email") as? String,
-               !adoptedEmail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                SessionManager.shared.activeUserEmail = adoptedEmail.lowercased()
-            }
-        }
-
-        // Populate ViewModel properties
         guard let user = user else {
             name = ""
             email = ""
             memberSince = ""
+            profileImageData = nil
+            heightCm = 0
+            weightKg = 0
             return
         }
 
         let rawName = user.value(forKey: "name") as? String ?? ""
         name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
         email = user.value(forKey: "email") as? String ?? ""
+        profileImageData = user.value(forKey: "profileImage") as? Data
+        heightCm = user.value(forKey: "heightCm") as? Double ?? 0
+        weightKg = user.value(forKey: "weightKg") as? Double ?? 0
 
         if let createdAt = user.value(forKey: "createdAt") as? Date {
             let formatter = DateFormatter()
@@ -80,6 +113,45 @@ final class CurrentUserViewModel: ObservableObject {
             )
         } else {
             memberSince = ""
+        }
+    }
+
+    func updateProfileImage(_ data: Data?) {
+        guard !email.isEmpty else { return }
+        let context = PersistenceController.shared.container.viewContext
+        let request = NSFetchRequest<NSManagedObject>(entityName: "User")
+        request.predicate = NSPredicate(format: "email ==[c] %@", email)
+        request.fetchLimit = 1
+        guard let user = try? context.fetch(request).first else { return }
+        user.setValue(data, forKey: "profileImage")
+        if context.hasChanges {
+            do {
+                try context.save()
+                self.profileImageData = data
+            } catch {
+                context.rollback()
+            }
+        }
+    }
+
+    func updateBody(heightCm: Double, weightKg: Double) {
+        guard !email.isEmpty else { return }
+        guard heightCm >= 0, weightKg >= 0, heightCm < 300, weightKg < 500 else { return }
+        let context = PersistenceController.shared.container.viewContext
+        let request = NSFetchRequest<NSManagedObject>(entityName: "User")
+        request.predicate = NSPredicate(format: "email ==[c] %@", email)
+        request.fetchLimit = 1
+        guard let user = try? context.fetch(request).first else { return }
+        user.setValue(heightCm, forKey: "heightCm")
+        user.setValue(weightKg, forKey: "weightKg")
+        if context.hasChanges {
+            do {
+                try context.save()
+                self.heightCm = heightCm
+                self.weightKg = weightKg
+            } catch {
+                context.rollback()
+            }
         }
     }
 
