@@ -17,7 +17,7 @@ struct HomeHeaderView: View {
                 ZStack {
                     Image(systemName: WelcomeScreenConstants.Images.heartFill)
                         .resizable()
-                        .font(.title)
+                        .font(.title)     
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         .frame(width: 38, height: 34)
                     

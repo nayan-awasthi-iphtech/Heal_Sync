@@ -48,6 +48,11 @@ struct InstructionPopupCard: View {
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
                         .lineSpacing(2)
+
+                    Text(InsightsScreenConstants.fitnessDisclaimer)
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundColor(.white.opacity(0.5))
+                        .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 8)
                 
