@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import CoreData
 
 struct ProfileScreenView: View {
 
@@ -14,12 +15,17 @@ struct ProfileScreenView: View {
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var currentUser: CurrentUserViewModel
     @StateObject private var profileViewModel = ProfileViewModel()
+    @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
     @State private var showLogoutConfirm = false
     @State private var showEditSheet = false
     @State private var draftName = ""
     @State private var photoItem: PhotosPickerItem?
     @State private var draftHeight = ""
     @State private var draftWeight = ""
+    @State private var todayBPM: Double = 0
+    @State private var yesterdaySleepHours: Double = 0
+    @State private var yesterdayLabel: String = ProfileScreenConstants.notSet
+    @AppStorage("healsync_is_dark_mode") private var isDarkMode = true
 
     private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
 
@@ -41,7 +47,31 @@ struct ProfileScreenView: View {
                     // Header title + edit button
                     HStack(alignment: .top, spacing: 0) {
                         HeaderView(title: ProfileScreenConstants.mainTitle, subTitle: ProfileScreenConstants.subtitle)
-
+                      
+                        Button {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                isDarkMode.toggle()
+                            }
+                        } label: {
+                            Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(isDarkMode ? .black : Color(red: 1.0, green: 0.80, blue: 0.25))
+                                .contentTransition(.symbolEffect(.replace))
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    Circle()
+                                        .fill(isDarkMode ? mintGreen : Color(red: 0.12, green: 0.14, blue: 0.20))
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
+                                )
+                                .shadow(color: (isDarkMode ? mintGreen : Color(red: 1.0, green: 0.80, blue: 0.25)).opacity(0.35), radius: 8, x: 0, y: 4)
+                        }
+                        .accessibilityLabel(isDarkMode ? "Switch to light mode" : "Switch to dark mode")
+                        .padding(.top, 22)
+                        .padding(.trailing, 10)
+                        
                         Button {
                             draftName = currentUser.name
                             draftHeight = currentUser.heightCm > 0 ? String(currentUser.heightCm) : ""
@@ -219,6 +249,25 @@ struct ProfileScreenView: View {
                     }
                     .padding(.horizontal, 16)
 
+                    HStack(alignment: .top, spacing: 10) {
+                        HomeScreenOverviewCard2(
+                            imageName: "heart.fill",
+                            titleText: ProfileScreenConstants.heartRate,
+                            descriptionText: todayBPM > 0 ? "\(Int(todayBPM)) \(ProfileScreenConstants.bpmUnit)" : ProfileScreenConstants.notSet,
+                            resultText: ProfileScreenConstants.todayBadge,
+                            imageColor: Color.red
+                        )
+
+                        HomeScreenOverviewCard2(
+                            imageName: "moon.stars.fill",
+                            titleText: ProfileScreenConstants.sleep,
+                            descriptionText: yesterdaySleepText,
+                            resultText: yesterdayLabel,
+                            imageColor: Color.purple
+                        )
+                    }
+                    .padding(.horizontal, 16)
+
                     Text(ProfileScreenConstants.bodyMetricsTitle)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
@@ -344,6 +393,7 @@ struct ProfileScreenView: View {
         .onAppear {
             profileViewModel.refresh()
             currentUser.refresh()
+            refreshVitals()
         }
         .onChange(of: photoItem) { _, newItem in
             guard let newItem else { return }
@@ -360,8 +410,38 @@ struct ProfileScreenView: View {
         .onChange(of: activityViewModel.lastUpdated) { _, _ in
             profileViewModel.refresh()
         }
+        .onChange(of: sleepTracker.sleepVersion) { _, _ in
+            refreshVitals()
+        }
         .onChange(of: authViewModel.isAuthenticated) { _, newValue in
             print("🔄 ProfileScreenView observed isAuthenticated change: \(newValue)")
+        }
+    }
+
+    private var yesterdaySleepText: String {
+        guard yesterdaySleepHours > 0 else { return ProfileScreenConstants.notSet }
+        let h = Int(yesterdaySleepHours)
+        let m = Int((yesterdaySleepHours - Double(h)) * 60)
+        return "\(h)h \(m)m"
+    }
+
+    private func refreshVitals() {
+        let now = Date()
+        let calendar = Calendar.current
+        let startToday = calendar.startOfDay(for: now)
+        todayBPM = HeartRateStore.shared.averageBPM(from: startToday, to: now)
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: startToday) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            yesterdayLabel = formatter.string(from: yesterday)
+            let real = sleepTracker.dailyHours(end: yesterday, days: 1).first?.hours ?? 0
+            if real > 0 {
+                yesterdaySleepHours = real
+            } else if sleepTracker.isTouchedNight(yesterday) {
+                yesterdaySleepHours = 0
+            } else {
+                yesterdaySleepHours = sleepTracker.placeholderHours(for: yesterday)
+            }
         }
     }
 

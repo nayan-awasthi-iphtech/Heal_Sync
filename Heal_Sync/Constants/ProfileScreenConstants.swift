@@ -32,6 +32,9 @@ struct ProfileScreenConstants {
     static let activeTime = "Active Time"
     static let totalBadge = "Total"
     static let activeBadge = "Active"
+    static let heartRate = "Heart Rate"
+    static let sleep = "Sleep"
+    static let bpmUnit = "bpm"
 
     // User card 
 

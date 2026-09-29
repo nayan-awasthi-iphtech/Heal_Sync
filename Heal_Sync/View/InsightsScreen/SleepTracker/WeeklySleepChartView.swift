@@ -196,8 +196,6 @@ struct WeeklySleepChartView: View {
         let fetchedDaily = manager.dailyHours(end: now, days: 7)
         let realHoursMap: [Date: Double] = Dictionary(uniqueKeysWithValues: fetchedDaily.map { ($0.date, $0.hours) })
 
-        let dummyValues: [Double] = [7.75, 6.8, 7.5, 8.0, 6.5, 7.8, 7.0]
-
         var updatedBars: [SleepBarData] = []
         let dayFormatter = DateFormatter()
         dayFormatter.dateFormat = WeeklySleepChartConstants.format
@@ -231,7 +229,7 @@ struct WeeklySleepChartView: View {
                 } else if manager.isTouchedNight(nightKey) {
                     hours = 0.0
                 } else {
-                    hours = dummyValues[dayIndex % dummyValues.count]
+                    hours = manager.placeholderHours(for: nightKey)
                     isDummy = true
                 }
             } else {

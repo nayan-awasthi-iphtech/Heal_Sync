@@ -9,7 +9,14 @@ import Foundation
 import CoreData
 
 extension SleepTrackerManager {
-    
+
+    private static let placeholderBaseline: [Double] = [7.75, 6.8, 7.5, 8.0, 6.5, 7.8, 7.0]
+
+    func placeholderHours(for night: Date) -> Double {
+        let weekday = Calendar.current.component(.weekday, from: night)
+        return Self.placeholderBaseline[(weekday + 5) % 7]
+    }
+
     func dailyHours(end: Date = Date(), days: Int = 7) -> [(date: Date, hours: Double)] {
         guard let owner = currentUser() else { return [] }
         let calendar = Calendar.current
