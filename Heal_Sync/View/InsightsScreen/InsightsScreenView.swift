@@ -1,21 +1,28 @@
 import SwiftUI
+import CoreData
 
 struct InsightsScreenView: View {
-
+    
     @StateObject private var heartRateManager = HeartRateManager()
+    @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
     @EnvironmentObject var activityVM: ActivityViewModel
-
+    
     @State private var showInstructionsPopup: Bool = false
-
+    
     @State private var selectedTab: String = InsightsScreenConstants.health
+    
+    @State private var selectedPeriod: SleepFilterPeriod = .tonight
+    
+    // Sleep data state (or standard model instance)
+    @State private var sleepData = InsightsSleepCardConstants.mockData(for: .tonight)
     let options = [
         InsightsScreenConstants.health,
         InsightsScreenConstants.sleep,
         InsightsScreenConstants.calories
     ]
-
+    
     var body: some View {
-
+        
         ZStack{
             LinearGradient(
                 colors: [
@@ -26,14 +33,14 @@ struct InsightsScreenView: View {
                 endPoint: .trailing
             )
             .ignoresSafeArea()
-
+            
             ScrollView{
                 VStack{
-
+                    
                     HeaderView(title: InsightsScreenConstants.mainTitle, subTitle: InsightsScreenConstants.subtitle)
-
+                    
                     PickerView(selection: $selectedTab, options: options)
-
+                    
                     if selectedTab == InsightsScreenConstants.calories {
                         InsightsCaloriesCard()
                             .padding(.top, 8)
@@ -41,10 +48,47 @@ struct InsightsScreenView: View {
                         InsightsScreenCenterCard(liveBPM: heartRateManager.currentBPM)
                             .padding(.top, 8)
                     } else {
-                        InsightsSleepCard()
+                        InsightsSleepCard(
+                            selectedPeriod: $selectedPeriod,
+                            sleepData: sleepData
+                        )
+                        .padding(.top, 8)
+                        .onChange(of: selectedPeriod) { _, newPeriod in
+                            sleepData = InsightsSleepCardConstants.mockData(for: newPeriod)
+                        }
+                        WeeklySleepChartView(manager: sleepTracker)
                             .padding(.top, 8)
                     }
 
+                    if selectedTab == InsightsScreenConstants.sleep {
+                        Button(action: {
+                            if case .tracking = sleepTracker.currentState {
+                                sleepTracker.stopSleepSession()
+                            } else {
+                                sleepTracker.startSleepSession()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: {
+                                    if case .tracking = sleepTracker.currentState { return "pause.fill" }
+                                    return "bed.double.fill"
+                                }())
+                                Text({
+                                    if case .tracking = sleepTracker.currentState { return "Stop Sleep" }
+                                    return "Start Sleep"
+                                }())
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.black)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(red: 0.30, green: 0.92, blue: 0.65))
+                            .cornerRadius(14)
+                            .padding(.horizontal, 16)
+                        }
+                        .padding(.top, 8)
+                    }
+                    
                     if selectedTab == InsightsScreenConstants.health {
                         Button(action: {
                             withAnimation { showInstructionsPopup = true }
@@ -70,7 +114,7 @@ struct InsightsScreenView: View {
                             .multilineTextAlignment(.center)
                             .padding(.top, 4)
                     }
-
+                    
                     if selectedTab == InsightsScreenConstants.calories {
                         InsightsScreenBottomCard(
                             title: InsightsScreenConstants.caloriesKeepItUp,
@@ -81,7 +125,7 @@ struct InsightsScreenView: View {
                         InsightsScreenBottomCard()
                             .padding(.top, 10)
                     }
-
+                    
                     Spacer()
                 }
             }
@@ -174,7 +218,7 @@ struct InsightsScreenView: View {
             heartRateManager.cancelMeasurement()
         }
     }
-
+    
     private var calorieInsightMessage: String {
         let today = activityVM.todayCaloriesValue
         let goal = ActivityViewModel.dayCalorieGoal
