@@ -247,3 +247,5 @@ struct ProfileScreenView: View {
         .environmentObject(ActivityViewModel())
         .environmentObject(CurrentUserViewModel())
 }
+
+
