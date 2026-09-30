@@ -39,11 +39,11 @@ struct InstructionPopupCard: View {
                 
                 // Text Content
                 VStack(spacing: 8) {
-                    Text("How to Measure")
+                    Text(ShowInstructionsPopUpConstants.measureTitle)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Cover both the **camera** and **flash** lightly with your index finger. Do not press too hard.")
+                    Text(ShowInstructionsPopUpConstants.instructionsText)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
@@ -59,7 +59,7 @@ struct InstructionPopupCard: View {
                 // Action Buttons
                 HStack(spacing: 12) {
                     Button(action: onCancel) {
-                        Text("Cancel")
+                        Text(ShowInstructionsPopUpConstants.cancel)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.7))
                             .frame(maxWidth: .infinity)
@@ -69,7 +69,7 @@ struct InstructionPopupCard: View {
                     }
                     
                     Button(action: onStart) {
-                        Text("Start Scan")
+                        Text(ShowInstructionsPopUpConstants.startScan)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)

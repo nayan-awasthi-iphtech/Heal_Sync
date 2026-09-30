@@ -59,7 +59,7 @@ struct InsightsScreenView: View {
                         WeeklySleepChartView(manager: sleepTracker)
                             .padding(.top, 8)
                     }
-
+                    
                     if selectedTab == InsightsScreenConstants.sleep {
                         Button(action: {
                             if case .tracking = sleepTracker.currentState {
@@ -74,10 +74,10 @@ struct InsightsScreenView: View {
                                     return "bed.double.fill"
                                 }())
                                 Text({
-                                    if case .tracking = sleepTracker.currentState { return "Stop Sleep" }
-                                    return "Start Sleep"
+                                    if case .tracking = sleepTracker.currentState { return InsightsScreenConstants.stop }
+                                    return InsightsScreenConstants.start
                                 }())
-                                    .fontWeight(.semibold)
+                                .fontWeight(.semibold)
                             }
                             .foregroundColor(.black)
                             .padding()
@@ -95,7 +95,7 @@ struct InsightsScreenView: View {
                         }) {
                             HStack {
                                 Image(systemName: "hand.point.up.fill")
-                                Text("Start Pulse Scan")
+                                Text(InsightsScreenConstants.startPulseScan)
                                     .fontWeight(.semibold)
                             }
                             .foregroundColor(.black)
@@ -119,6 +119,12 @@ struct InsightsScreenView: View {
                         InsightsScreenBottomCard(
                             title: InsightsScreenConstants.caloriesKeepItUp,
                             message: calorieInsightMessage
+                        )
+                        .padding(.top, 10)
+                    } else if selectedTab == InsightsScreenConstants.sleep {
+                        InsightsScreenBottomCard(
+                            title: InsightsScreenConstants.title,
+                            message: InsightsScreenConstants.message
                         )
                         .padding(.top, 10)
                     } else {
@@ -178,7 +184,7 @@ struct InsightsScreenView: View {
                             Button(action: {
                                 heartRateManager.cancelMeasurement()
                             }) {
-                                Text("Cancel")
+                                Text(InsightsScreenConstants.cancel)
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.white.opacity(0.8))
                                     .frame(maxWidth: .infinity)
@@ -202,7 +208,7 @@ struct InsightsScreenView: View {
             }
         )
         .alert(
-            "Camera Access",
+            InsightsScreenConstants.cameraAccess,
             isPresented: Binding(
                 get: { heartRateManager.errorMessage != nil },
                 set: { if !$0 { heartRateManager.errorMessage = nil } }
@@ -223,11 +229,11 @@ struct InsightsScreenView: View {
         let today = activityVM.todayCaloriesValue
         let goal = ActivityViewModel.dayCalorieGoal
         if today <= 0 {
-            return "No calories burned yet today. Start tracking to see progress."
+            return InsightsScreenConstants.caloriesMsg
         } else if today >= goal {
-            return "Goal reached — \(today) of \(goal) kcal burned today."
+            return "\(InsightsScreenConstants.goalReachedT1) \(today) \(InsightsScreenConstants.goalReachedT2) \(goal) \(InsightsScreenConstants.goalReachedT3)"
         } else {
-            return "\(today) of \(goal) kcal — keep moving to hit your goal."
+            return "\(today) \(InsightsScreenConstants.goalReachedT2) \(goal) \(InsightsScreenConstants.goalReachedT4)"
         }
     }
 }
