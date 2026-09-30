@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import PhotosUI
+import CoreData
 
 struct ProfileScreenView: View {
 
@@ -13,9 +15,18 @@ struct ProfileScreenView: View {
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var currentUser: CurrentUserViewModel
     @StateObject private var profileViewModel = ProfileViewModel()
+    @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
+    
     @State private var showLogoutConfirm = false
     @State private var showEditSheet = false
     @State private var draftName = ""
+    @State private var photoItem: PhotosPickerItem?
+    @State private var draftHeight = ""
+    @State private var draftWeight = ""
+    @State private var todayBPM: Double = 0
+    @State private var yesterdaySleepHours: Double = 0
+    @State private var yesterdayLabel: String = ProfileScreenConstants.notSet
+    @AppStorage("healsync_is_dark_mode") private var isDarkMode = true
 
     private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
 
@@ -34,111 +45,16 @@ struct ProfileScreenView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 14) {
-                    // Header title + edit button
-                    HStack(alignment: .top, spacing: 0) {
-                        HeaderView(title: ProfileScreenConstants.mainTitle, subTitle: ProfileScreenConstants.subtitle)
-
-                        Button {
-                            draftName = currentUser.name
-                            showEditSheet = true
-                        } label: {
-                            Image(systemName: "square.and.pencil")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.black)
-                                .frame(width: 44, height: 44)
-                                .background(
-                                    Circle()
-                                        .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
-                                )
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
-                                )
-                                .shadow(color: Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.35), radius: 8, x: 0, y: 4)
-                        }
-                        .padding(.top, 22)
-                        .padding(.trailing, 16)
+                    ProfileHeaderView(isDarkMode: $isDarkMode) {
+                        draftName = currentUser.name
+                        draftHeight = currentUser.heightCm > 0 ? String(currentUser.heightCm) : ""
+                        draftWeight = currentUser.weightKg > 0 ? String(currentUser.weightKg) : ""
+                        showEditSheet = true
                     }
 
-                    // User card
-                    HStack(spacing: 14) {
-                        Text(currentUser.initial)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(width: 60, height: 60)
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [mintGreen, mintGreen.opacity(0.6)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                            )
+                    ProfileUserCard(photoItem: $photoItem, currentUser: currentUser)
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(currentUser.displayName)
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-
-                            Text(currentUser.email)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white.opacity(0.7))
-                                .lineLimit(1)
-
-                            if !currentUser.memberSince.isEmpty {
-                                Text(currentUser.memberSince)
-                                    .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(mintGreen)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-
-                    // Present day banner
-                    HStack(spacing: 10) {
-                        Image(systemName: "calendar")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(mintGreen)
-
-                        Text(profileViewModel.todayTitle)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.white)
-
-                        Spacer()
-
-                        Text(ProfileScreenConstants.todayBadge)
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(mintGreen)
-                            )
-                    }
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
+                    ProfileDayBanner(todayTitle: profileViewModel.todayTitle)
 
                     // Range picker + stats
                     PickerView(
@@ -184,7 +100,7 @@ struct ProfileScreenView: View {
                             )
 
                             HomeScreenOverviewCard2(
-                                imageName: "stopwatch.fill",
+                                imageName: "stopwatch.fill",  
                                 titleText: ProfileScreenConstants.activeTime,
                                 descriptionText: profileViewModel.activeMinutesFormatted,
                                 resultText: ProfileScreenConstants.activeBadge
@@ -192,6 +108,49 @@ struct ProfileScreenView: View {
                         }
                     }
                     .padding(.horizontal, 16)
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HomeScreenOverviewCard2(
+                            imageName: "heart.fill",
+                            titleText: ProfileScreenConstants.heartRate,
+                            descriptionText: todayBPM > 0 ? "\(Int(todayBPM)) \(ProfileScreenConstants.bpmUnit)" : ProfileScreenConstants.notSet,
+                            resultText: ProfileScreenConstants.todayBadge,
+                            imageColor: Color.red
+                        )
+
+                        HomeScreenOverviewCard2(
+                            imageName: "moon.stars.fill",
+                            titleText: ProfileScreenConstants.sleep,
+                            descriptionText: yesterdaySleepText,
+                            resultText: yesterdayLabel,
+                            imageColor: Color.purple
+                        )
+                    }
+                    .padding(.horizontal, 16)
+
+                    Text(ProfileScreenConstants.bodyMetricsTitle)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HomeScreenOverviewCard2(
+                            imageName: "ruler.fill",
+                            titleText: ProfileScreenConstants.height,
+                            descriptionText: currentUser.heightFormatted,
+                            resultText: ProfileScreenConstants.cmUnit
+                        )
+
+                        HomeScreenOverviewCard2(
+                            imageName: "scalemass.fill",
+                            titleText: ProfileScreenConstants.weight,
+                            descriptionText: currentUser.weightFormatted,
+                            resultText: ProfileScreenConstants.kgUnit
+                        )
+                    }
+                    .padding(.horizontal, 16)
+
+                    ProfileBMICard(currentUser: currentUser)
 
                     // Logout (with confirmation)
                     LogoutButton {
@@ -215,117 +174,71 @@ struct ProfileScreenView: View {
             Text(ProfileScreenConstants.logoutMessage)
         }
         .sheet(isPresented: $showEditSheet) {
-            editSheet
-                .presentationDetents([.medium])
+            ProfileEditSheet(
+                draftName: $draftName,
+                draftHeight: $draftHeight,
+                draftWeight: $draftWeight,
+                currentUser: currentUser
+            ) {
+                showEditSheet = false
+            }
+            .presentationDetents([.medium])
         }
         .onAppear {
             profileViewModel.refresh()
+            currentUser.refresh()
+            refreshVitals()
+        }
+        .onChange(of: photoItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                guard let data = try? await newItem.loadTransferable(type: Data.self) else { return }
+                if let ui = UIImage(data: data), let compressed = ui.jpegData(compressionQuality: 0.7) {
+                    currentUser.updateProfileImage(compressed)
+                } else {
+                    currentUser.updateProfileImage(data)
+                }
+            }
         }
         // Live: refresh profile stats whenever the shared tracker records new data.
         .onChange(of: activityViewModel.lastUpdated) { _, _ in
             profileViewModel.refresh()
+        }
+        .onChange(of: sleepTracker.sleepVersion) { _, _ in
+            refreshVitals()
         }
         .onChange(of: authViewModel.isAuthenticated) { _, newValue in
             print("🔄 ProfileScreenView observed isAuthenticated change: \(newValue)")
         }
     }
 
-    // Edit profile sheet (same dark + mint theme)
+    private var yesterdaySleepText: String {
+        guard yesterdaySleepHours > 0 else { return ProfileScreenConstants.notSet }
+        let h = Int(yesterdaySleepHours)
+        let m = Int((yesterdaySleepHours - Double(h)) * 60)
+        return "\(h)h \(m)m"
+    }
 
-    private var editSheet: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.04, green: 0.02, blue: 0.1),
-                    Color(red: 0.02, green: 0.15, blue: 0.17)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .ignoresSafeArea()
-
-            VStack(spacing: 20) {
-                Text(ProfileScreenConstants.editProfile)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.top, 8)
-
-                HStack(spacing: 12) {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
-                        .frame(width: 24)
-
-                    TextField("", text: $draftName, prompt: Text(ProfileScreenConstants.namePlaceholder).foregroundColor(.white.opacity(0.4)))
-                        .foregroundColor(.white)
-                        .textInputAutocapitalization(.words)
-                }
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .padding(.horizontal, 20)
-
-                Button {
-                    currentUser.updateName(draftName)
-                    showEditSheet = false
-                } label: {
-                    Text(ProfileScreenConstants.save)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            Capsule()
-                                .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
-                        )
-                }
-                .padding(.horizontal, 20)
-
-                Button(ProfileScreenConstants.cancel, role: .cancel) {
-                    showEditSheet = false
-                }
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white.opacity(0.7))
-
-                Spacer()
+    private func refreshVitals() {
+        let now = Date()
+        let calendar = Calendar.current
+        let startToday = calendar.startOfDay(for: now)
+        todayBPM = HeartRateStore.shared.averageBPM(from: startToday, to: now)
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: startToday) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            yesterdayLabel = formatter.string(from: yesterday)
+            let real = sleepTracker.dailyHours(end: yesterday, days: 1).first?.hours ?? 0
+            if real > 0 {
+                yesterdaySleepHours = real
+            } else if sleepTracker.isTouchedNight(yesterday) {
+                yesterdaySleepHours = 0
+            } else {
+                yesterdaySleepHours = sleepTracker.placeholderHours(for: yesterday)
             }
         }
     }
-}
 
-struct LogoutButton: View {
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: {
-            action()
-        }) {
-            HStack(spacing: 10) {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .font(.system(size: 16, weight: .bold))
-
-                Text(ProfileScreenConstants.logout)
-                    .font(.system(size: 16, weight: .bold))
-            }
-            .foregroundColor(.red)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.red.opacity(0.12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
-                    )
-            )
-        }
-        .padding(.horizontal)
-    }
 }
 
 #Preview {
@@ -334,3 +247,5 @@ struct LogoutButton: View {
         .environmentObject(ActivityViewModel())
         .environmentObject(CurrentUserViewModel())
 }
+
+

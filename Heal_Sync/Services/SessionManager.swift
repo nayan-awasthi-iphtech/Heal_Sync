@@ -34,6 +34,7 @@ final class SessionManager{
     }
     
     func clearSession(){
+        SleepTrackerManager.removePendingSession(defaults: defaults, email: activeUserEmail)
         defaults.set(false, forKey: loggedInUserKey)
         defaults.removeObject(forKey: currentUserEmail)
     }

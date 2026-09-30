@@ -26,6 +26,7 @@ final class ProfileViewModel: ObservableObject {
 
     @Published private(set) var steps: Int = 0
     @Published private(set) var distanceMeters: Double = 0.0
+    @Published private(set) var storedCalories: Double = 0.0
 
     private let store = ActivityStore.shared
 
@@ -43,7 +44,7 @@ final class ProfileViewModel: ObservableObject {
         return String(format: "%.1f km", km)
     }
 
-    var caloriesValue: Int { Int(Double(steps) * 0.043) }
+    var caloriesValue: Int { Int(storedCalories > 0 ? storedCalories : ActivityStore.calories(for: steps)) }
     var caloriesFormatted: String { "\(caloriesValue) kcal" }
 
     var activeMinutesValue: Int { Int(Double(steps) / 100.0) }
@@ -99,10 +100,12 @@ final class ProfileViewModel: ObservableObject {
             let record = store.loadDay(dayID: ActivityStore.dayID(for: now))
             steps = record?.steps ?? 0
             distanceMeters = record?.distance ?? 0.0
+            storedCalories = record?.calories ?? 0.0
         } else {
             let result = store.sumDays(from: rangeStart(for: selectedRange, now: now), to: now)
             steps = result.steps
             distanceMeters = result.distance
+            storedCalories = result.calories
         }
     }
 

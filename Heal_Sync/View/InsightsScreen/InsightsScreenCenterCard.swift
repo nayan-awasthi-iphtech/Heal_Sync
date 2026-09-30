@@ -9,18 +9,31 @@ import SwiftUI
 
 struct InsightsScreenCenterCard: View {
     
-    // Week Data
-    private let weekData: [(day: String, value: Double)] = [
-        (InsightsScreenConstants.weekDays[0], 62),
-        (InsightsScreenConstants.weekDays[1], 70),
-        (InsightsScreenConstants.weekDays[2], 64),
-        (InsightsScreenConstants.weekDays[3], 58),
-        (InsightsScreenConstants.weekDays[4], 72),
-        (InsightsScreenConstants.weekDays[5], 52),
-        (InsightsScreenConstants.weekDays[6], 60)
-    ]
+    var liveBPM: Int = 0
+    
+    @State private var weekBPM: [Double] = Array(repeating: 0, count: 7)
+    @State private var weekIsDummy: [Bool] = Array(repeating: false, count: 7)
+    @State private var weekDayLabels: [String] = InsightsScreenConstants.weekDays
+    @State private var lastWeekAvg: Double = 0
+    private let store = HeartRateStore.shared
+    // Fixed preview baseline for past days with no real reading (today stays real).
+    private let dummyBPM: [Double] = [72, 76, 69, 74, 71, 78, 0]
+    private var weekData: [(day: String, value: Double, isDummy: Bool)] {
+        zip(zip(weekDayLabels, weekBPM), weekIsDummy).map { (day: $0.0, value: $0.1, isDummy: $1) }
+    }
+    // Real data only — dummies never count, never hide the empty state.
+    private var hasData: Bool {
+        zip(weekBPM, weekIsDummy).contains { $0 > 0 && !$1 } || liveBPM > 0
+    }
+    private var changeText: String {
+        let realVals = zip(weekBPM, weekIsDummy).compactMap { $0 > 0 && !$1 ? $0 : nil }
+        let thisAvg = realVals.reduce(0, +) / max(1, Double(realVals.count))
+        guard lastWeekAvg > 0, thisAvg > 0 else { return InsightsScreenConstants.changePercent }
+        let pct = (thisAvg - lastWeekAvg) / lastWeekAvg * 100
+        return "\(pct >= 0 ? "+" : "")\(Int(pct))%"
+    }
     private let maxValue: Double = 120
-    @State private var selectedIndex: Int = 4
+    @State private var selectedIndex: Int = 6
     
     private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
     private let darkTeal = Color(red: 0.07, green: 0.14, blue: 0.16)
@@ -32,7 +45,8 @@ struct InsightsScreenCenterCard: View {
             HStack(spacing: 8) {
                 Image(systemName: InsightsScreenConstants.Images.heartFill)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(mintGreen)
+                    .foregroundColor(liveBPM > 0 ? .red : mintGreen)
+                    .animation(.easeInOut(duration: 0.5).repeatCount(liveBPM > 0 ? .max : 0), value: liveBPM)
                 
                 Text(InsightsScreenConstants.heartRate)
                     .font(.system(size: 17, weight: .semibold))
@@ -48,9 +62,9 @@ struct InsightsScreenCenterCard: View {
             // Value row: selected day value + change vs last week
             HStack(alignment: .bottom, spacing: 120) {
                 HStack(alignment: .lastTextBaseline, spacing: 4) {
-                    Text("\(Int(weekData[selectedIndex].value))")
+                    Text(liveBPM > 0 ? "\(liveBPM)" : "\(Int(weekData[selectedIndex].value))")
                         .font(.system(size: 38, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(liveBPM > 0 ? mintGreen :.white)
                         .animation(.easeInOut(duration: 0.2), value: selectedIndex)
                     Text(InsightsScreenConstants.bpmUnit)
                         .font(.system(size: 18, weight: .regular))
@@ -62,7 +76,7 @@ struct InsightsScreenCenterCard: View {
                     HStack(spacing: 3) {
                         Image(systemName: InsightsScreenConstants.Images.trendUp)
                             .font(.system(size: 13, weight: .bold))
-                        Text(InsightsScreenConstants.changePercent)
+                        Text(changeText)
                             .font(.system(size: 15, weight: .bold))
                     }
                     .foregroundColor(mintGreen)
@@ -72,6 +86,12 @@ struct InsightsScreenCenterCard: View {
                         .foregroundColor(.white)
                 }
                 .padding(.bottom, 4)
+            }
+            
+            if !hasData {
+                Text(InsightsScreenConstants.heartEmptyState)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(.white.opacity(0.6))
             }
             
             // Bar chart with Y-axis grid lines
@@ -109,37 +129,42 @@ struct InsightsScreenCenterCard: View {
                             ForEach(weekData.indices, id: \.self) { index in
                                 let item = weekData[index]
                                 let isSelected = index == selectedIndex
+                                let isDummy = item.isDummy
+                                // Dimmed placeholder so QA never reads it as a real reading
+                                let beamColors = isDummy
+                                    ? [Color.white.opacity(isSelected ? 0.18 : 0.10), Color.white.opacity(0.10)]
+                                    : [mintGreen.opacity(isSelected ? 0.25 : 0.12), mintGreen.opacity(isSelected ? 0.28 : 0.12)]
+                                let barColors = isDummy
+                                    ? [Color.white.opacity(0.35), Color.white.opacity(0.25)]
+                                    : (isSelected
+                                        ? [mintGreen, mintGreen.opacity(0.9)]
+                                        : [mintGreen.opacity(0.95), mintGreen.opacity(0.95)])
                                 ZStack(alignment: .bottom) {
                                     
                                     // 1. Vertical Glow Beam Behind Bar
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(
                                             LinearGradient(
-                                                colors: [
-                                                    mintGreen.opacity(isSelected ? 0.25 : 0.12),
-                                                    mintGreen.opacity(isSelected ? 0.28 : 0.12)
-                                                ],
+                                                colors: beamColors,
                                                 startPoint: .top,
                                                 endPoint: .bottom
                                             )
                                         )
                                         .frame(width: isSelected ? 27 : 12	, height: 70)
-                                        .shadow(color: mintGreen.opacity(isSelected ? 0.5 : 0.5), radius: isSelected ? 8 : 4, x: 0, y: 0)
+                                        .shadow(color: (isDummy ? Color.white : mintGreen).opacity(isSelected ? 0.5 : 0.5), radius: isSelected ? 8 : 4, x: 0, y: 0)
                                     
                                     // 2. Active Bar with Drop Glow
                                     RoundedRectangle(cornerRadius: 5)
                                         .fill(
                                             LinearGradient(
-                                                colors: isSelected
-                                                ? [mintGreen, mintGreen.opacity(0.9)]
-                                                : [mintGreen.opacity(0.95), mintGreen.opacity(0.95)],
+                                                colors: barColors,
                                                 startPoint: .top,
                                                 endPoint: .bottom
                                             )
                                         )
                                         .frame(width: isSelected ? 12 : 13, height: barHeight(for: item.value))
-                                        .opacity(isSelected ? 1.0 : 1.0)
-                                        .shadow(color: mintGreen.opacity(isSelected ? 0.95 : 0.95), radius: isSelected ? 10 : 3, x: 0, y: 0)
+                                        .opacity(isDummy ? 0.45 : 1.0)
+                                        .shadow(color: (isDummy ? Color.white : mintGreen).opacity(isSelected ? 0.95 : 0.95), radius: isSelected ? 10 : 3, x: 0, y: 0)
                                     
                                     // 3. Tooltip bubble
                                     if isSelected {
@@ -202,6 +227,42 @@ struct InsightsScreenCenterCard: View {
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal, 16)
+        .onAppear { refresh() }
+        .onChange(of: liveBPM) { _, _ in refresh(preserveSelection: true) }
+    }
+    
+    private func refresh(preserveSelection: Bool = false) {
+        let days = store.dailyAverageBPM(end: Date(), days: 7)
+        var realBPM = days.map { $0.bpm }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        weekDayLabels = days.map { String(formatter.string(from: $0.date).prefix(3)) }
+        while realBPM.count < 7 { realBPM.insert(0, at: 0); weekDayLabels.insert("", at: 0) }
+        // Past-day placeholders only: today (index 6) always stays real.
+        var filled = realBPM
+        var dummies = Array(repeating: false, count: 7)
+        for i in 0..<min(6, filled.count) {
+            if filled[i] <= 0 {
+                filled[i] = dummyBPM[i % dummyBPM.count]
+                dummies[i] = filled[i] > 0
+            }
+        }
+        weekBPM = filled
+        weekIsDummy = dummies
+        if !preserveSelection {
+            selectedIndex = 6
+        } else if selectedIndex >= weekBPM.count {
+            selectedIndex = 6
+        }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        if let prevEnd = calendar.date(byAdding: .day, value: -7, to: today) {
+            let prevDays = store.dailyAverageBPM(end: prevEnd, days: 7)
+            let vals = prevDays.map { $0.bpm }.filter { $0 > 0 }
+            lastWeekAvg = vals.isEmpty ? 0 : vals.reduce(0, +) / Double(vals.count)
+        } else {
+            lastWeekAvg = 0
+        }
     }
     
     private func barHeight(for value: Double) -> CGFloat {

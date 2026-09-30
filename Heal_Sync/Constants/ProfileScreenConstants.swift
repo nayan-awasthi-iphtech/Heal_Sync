@@ -32,6 +32,9 @@ struct ProfileScreenConstants {
     static let activeTime = "Active Time"
     static let totalBadge = "Total"
     static let activeBadge = "Active"
+    static let heartRate = "Heart Rate"
+    static let sleep = "Sleep"
+    static let bpmUnit = "bpm"
 
     // User card 
 
@@ -52,4 +55,20 @@ struct ProfileScreenConstants {
     static let namePlaceholder = "Full Name"
     static let save = "Save"
     static let cancel = "Cancel"
+
+    static let bodyMetricsTitle = "Body Metrics"
+    static let height = "Height"
+    static let weight = "Weight"
+    static let bmi = "BMI"
+    static let cmUnit = "cm"
+    static let kgUnit = "kg"
+    static let notSet = "—"
+    static let heightPlaceholder = "Height (cm)"
+    static let weightPlaceholder = "Weight (kg)"
+    static let editBodyMetrics = "Edit"
+    static let bmiUnderweight = "Underweight"
+    static let bmiHealthy = "Healthy"
+    static let bmiOverweight = "Overweight"
+    static let bmiObese = "Obese"
+    static let bmiHealthyRange = "18.5 – 24.9 healthy"
 }

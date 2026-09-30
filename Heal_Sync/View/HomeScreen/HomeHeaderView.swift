@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
+    
+    var onProfileTap: () -> Void = {}
+    @EnvironmentObject var currentUser: CurrentUserViewModel
+    
     var body: some View {
         HStack(alignment: .center, spacing: 10) { 
             HStack(spacing: 12) {
                 ZStack {
                     Image(systemName: WelcomeScreenConstants.Images.heartFill)
                         .resizable()
-                        .font(.title)
+                        .font(.title)     
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         .frame(width: 38, height: 34)
                     
@@ -42,11 +46,20 @@ struct HomeHeaderView: View {
                     .foregroundStyle(.white)
             }
             
-            Image(systemName: "person.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(.white.opacity(0.6))
+            Button(action: onProfileTap) {
+                Group {
+                    if let img = currentUser.profileUIImage {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                }
                 .frame(width: 52, height: 52)
                 .background(
                     Circle()
@@ -54,6 +67,8 @@ struct HomeHeaderView: View {
                 )
                 .clipShape(Circle())
                 .padding(.horizontal, 2)
+            }
+            .accessibilityLabel("Open profile")
         }
     }
 }
@@ -72,5 +87,6 @@ struct HomeHeaderView: View {
         .ignoresSafeArea()
         
         HomeHeaderView()
+            .environmentObject(CurrentUserViewModel())
     }
 }
