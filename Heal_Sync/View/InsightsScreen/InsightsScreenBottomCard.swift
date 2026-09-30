@@ -28,7 +28,7 @@ struct InsightsScreenBottomCard: View {
                     .foregroundStyle(.white)
                 
                 Text(message)
-                    .font(.system(size: 17))
+                    .font(.system(size: 16))
                     .foregroundStyle(.white)
                 
             }

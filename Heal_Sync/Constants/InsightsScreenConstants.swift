@@ -32,12 +32,17 @@ struct InsightsScreenConstants {
     static let placeFingerText = "Cover the camera and flash with your finger"
     static let fitnessDisclaimer = "For fitness use only. Not for medical use."
 
-    // Insight card
+    // Insight card for Calories Section for bottom Card
 
     static let keepItUp = "Keep it up!"
-    static let healthyRange = "Your hear rate is in healthy range"
+    static let healthyRange = "Your heart rate is in healthy range"
     static let caloriesKeepItUp = "Nice burn!"
     static let caloriesHealthyRange = "You're on track with today's calorie goal"
+    
+    // Insights card for Sleep Section for bottomCard
+    
+    static let title = "Rest & Recovery"
+    static let message = "Consistent sleep of 7–9 hours improves physical recovery, mental clarity, and daily energy levels."
 
     // Icons (SF Symbols)
 
@@ -72,4 +77,27 @@ struct InsightsScreenConstants {
     static let bedtimeValue = "11:00 PM"
     static let wakeTitle = "Wake up"
     static let wakeValue = "6:20 AM"
+    
+    // Sleep start/stop button
+    
+    static let start = "Start Sleep"
+    static let stop = "Stop Sleep"
+    
+    // Health Section start puslse scan button
+    
+    static let startPulseScan = "Start Pulse Scan"
+    
+    // Cancel Button for Heart section PopUp
+    static let cancel = "Cancel"
+    
+    // camer access label
+    static let cameraAccess = "Camera Access"
+    
+    // Calories Section Bottom Card Text
+    static let caloriesMsg = "No calories burned yet today. Start tracking to see progress."
+    static let goalReachedT1 = "Goal reached —"
+    static let goalReachedT2 = "of"
+    static let goalReachedT3 = "kcal burned today."
+    static let goalReachedT4 = "kcal — keep moving to hit your goal."
+    
 }
