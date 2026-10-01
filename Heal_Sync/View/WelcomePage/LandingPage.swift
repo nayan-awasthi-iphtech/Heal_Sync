@@ -1,38 +1,31 @@
 import SwiftUI
 
 struct LandingPage: View {
-    
+
+    @EnvironmentObject var theme: ThemeManager
     @State private var currentPage: Int = 0
     @State private var navigateToWelcome: Bool = false
-    
+
     var body: some View {
-        
+
         NavigationStack{
             ZStack {
-                
+
                 // Base Background
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.05, green: 0.02, blue: 0.06),
-                        Color(red: 0.06, green: 0.20, blue: 0.19)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .ignoresSafeArea()
-                
+                ThemedBackground()
+
                 // Wave Background Lines
                 GeometryReader { geometry in
                     let width = geometry.size.width
                     let height = geometry.size.height
-                    
+
                     ZStack {
                         ForEach(0..<18, id: \.self) { i in
                             let offset = CGFloat(i) * 6.0
-                            
+
                             Path { path in
                                 path.move(to: CGPoint(x: width + 80, y: height * 0.35 + offset))
-                                
+
                                 path.addCurve(
                                     to: CGPoint(x: width * 0.40 - (CGFloat(i) * 2), y: height * 0.58 + (offset * 0.5)),
                                     control1: CGPoint(x: width * 0.70, y: height * 0.28 + offset),
@@ -53,14 +46,14 @@ struct LandingPage: View {
                     }
                 }
                 .ignoresSafeArea()
-                
+
                 // Screen Content
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack (alignment: .leading, spacing: 35) {
-                        
+
                         HeaderView()
                             .padding(.top, 20)
-                        
+
                         VStack(alignment: .leading, spacing: 15) {
                             Text(LandingScreenConstants.priorityBadge)
                                 .font(.system(size: 17, weight: .medium))
@@ -69,25 +62,24 @@ struct LandingPage: View {
                                 .padding(.vertical, 8)
                                 .background(
                                     Capsule()
-                                        .fill(Color(red: 0.08, green: 0.22, blue: 0.20).opacity(0.6))
+                                        .fill(theme.colors.cardBackground)
+                                        .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 4, x: 0, y: 2)
                                 )
                                 .overlay(
                                     Capsule()
-                                        .stroke(Color(red: 0.20, green: 0.45, blue: 0.38).opacity(0.5), lineWidth: 1)
+                                        .stroke(theme.isDarkMode ? Color(red: 0.20, green: 0.45, blue: 0.38).opacity(0.5) : Color.black.opacity(0.08), lineWidth: 1)
                                 )
-                            
+
                             VStack(alignment: .leading, spacing: -10) {
                                 Text(LandingScreenConstants.trackYour)
-                                    .foregroundColor(.white)
-                                
+                                    .foregroundColor(theme.colors.primaryText)
                                 HStack(spacing: 8) {
                                     Text(LandingScreenConstants.health)
-                                        .foregroundColor(.white)
-                                    
+                                        .foregroundColor(theme.colors.primaryText)
+
                                     Text(LandingScreenConstants.live)
                                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                                 }
-                                
                                 Text(LandingScreenConstants.better)
                                     .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             }
@@ -95,18 +87,18 @@ struct LandingPage: View {
                             .minimumScaleFactor(0.65)
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
-                            
+
                             VStack(alignment: .leading, spacing: 30){
                                 VStack(alignment: .leading, spacing: 4){
                                     Text(LandingScreenConstants.simpleTools)
                                         .font(.system(size: 22, weight: .medium))
-                                        .foregroundStyle(.white)
-                                    
+                                        .foregroundStyle(theme.colors.primaryText)
+
                                     Text(LandingScreenConstants.healthierYou)
                                         .font(.system(size: 22, weight: .medium))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(theme.colors.primaryText)
                                 }
-                                
+
                                 Button(action:{
                                     navigateToWelcome = true
                                 })
@@ -114,7 +106,7 @@ struct LandingPage: View {
                                     HStack(spacing: 8) {
                                         Text(LandingScreenConstants.getStarted)
                                             .font(.system(size: 18, weight: .bold))
-                                        
+
                                         Image(systemName: LandingScreenConstants.Images.arrowRight)
                                             .font(.system(size: 16, weight: .bold))
                                     }
@@ -126,86 +118,9 @@ struct LandingPage: View {
                                             .fill(Color(red: 0.30, green: 0.92, blue: 0.65))
                                     )
                                 }
-                                 
-                                HStack(alignment: .center, spacing: 12) {
-                                    // Left side: Runner image
-                                    Image(LandingScreenConstants.Images.runningImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 110, height: 190)
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        .clipped()
-                                    
-                                    // Right side: Text content + Green Heart Icon
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        
-                                        // Header line: Green Heart Badge + "Track"
-                                        HStack(alignment: .center, spacing: 6) {
-                                            Image(systemName: LandingScreenConstants.Images.heartFill)
-                                                .font(.system(size: 18))
-                                                .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
-                                                .shadow(color: Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.5), radius: 6)
-                                            
-                                            Text(LandingScreenConstants.cardTrack)
-                                                .font(.system(size: 22, weight: .bold))
-                                                .foregroundColor(.white)
-                                                .minimumScaleFactor(0.8)
-                                                .lineLimit(1)
-                                        }
-                                        
-                                        // "Daily Activity" on next line
-                                        Text(LandingScreenConstants.cardDailyActivity)
-                                            .font(.system(size: 22, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .minimumScaleFactor(0.8)
-                                            .lineLimit(1)
-                                        
-                                        // Description
-                                        Text(LandingScreenConstants.cardDescription)
-                                            .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(Color.white.opacity(0.75))
-                                            .lineSpacing(2)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                            .padding(.top, 2)
-                                    }
-                                    .layoutPriority(1)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                .padding(16)
-                                .frame(maxWidth: .infinity, minHeight: 230)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 24)
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [
-                                                    Color(red: 0.10, green: 0.28, blue: 0.25),
-                                                    Color(red: 0.04, green: 0.12, blue: 0.14)
-                                                ],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 24)
-                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                                )
-                                
-                                // Current Page Indicating dots
-                                HStack(spacing: 8) {
-                                    ForEach(0..<3, id: \.self) { index in
-                                        Circle()
-                                            .fill(
-                                                index == currentPage ? Color(red: 0.30, green: 0.92, blue: 0.65) : Color.white.opacity(0.25)
-                                            )
-                                            .frame(width: 10, height: 10)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.top, 25)
+                                LandingBottomCardSlider()
                             }
                         }
-                        
                         Spacer()
                     }
                     .padding(.horizontal, 16)
@@ -221,4 +136,5 @@ struct LandingPage: View {
 
 #Preview {
     LandingPage()
+        .environmentObject(ThemeManager())
 }

@@ -13,81 +13,75 @@ struct ProfileEditSheet: View {
     @Binding var draftHeight: String
     @Binding var draftWeight: String
     @ObservedObject var currentUser: CurrentUserViewModel
+    @EnvironmentObject private var theme: ThemeManager
     var onDismiss: () -> Void
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.04, green: 0.02, blue: 0.1),
-                    Color(red: 0.02, green: 0.15, blue: 0.17)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .ignoresSafeArea()
+            
+           ThemedBackground()
 
             VStack(spacing: 20) {
                 Text(ProfileScreenConstants.editProfile)
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.primaryText)
                     .padding(.top, 8)
 
                 HStack(spacing: 12) {
                     Image(systemName: "person.fill")
-                        .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                        .foregroundColor(theme.colors.accent)
                         .frame(width: 24)
 
-                    TextField("", text: $draftName, prompt: Text(ProfileScreenConstants.namePlaceholder).foregroundColor(.white.opacity(0.4)))
-                        .foregroundColor(.white)
+                    TextField("", text: $draftName, prompt: Text(ProfileScreenConstants.namePlaceholder).foregroundColor(theme.isDarkMode ? .white.opacity(0.4): .black.opacity(0.4)))
+                        .foregroundColor(theme.colors.primaryText)
                         .textInputAutocapitalization(.words)
                 }
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                        .fill(theme.colors.cardBackground).opacity(0.85)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.blue.opacity(0.08), lineWidth: 1)
                 )
                 .padding(.horizontal, 20)
 
                 HStack(spacing: 12) {
                     HStack(spacing: 12) {
                         Image(systemName: "ruler.fill")
-                            .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                            .foregroundColor(theme.colors.accent)
                             .frame(width: 24)
-                        TextField("", text: $draftHeight, prompt: Text(ProfileScreenConstants.heightPlaceholder).foregroundColor(.white.opacity(0.4)))
-                            .foregroundColor(.white)
+                        TextField("", text: $draftHeight, prompt: Text(ProfileScreenConstants.heightPlaceholder).foregroundColor(theme.isDarkMode ? .white.opacity(0.4) : .black.opacity(0.4)))
+                            .foregroundColor(theme.colors.primaryText)
                             .keyboardType(.decimalPad)
                     }
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                            .fill(theme.colors.cardBackground).opacity(0.85)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(theme.isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08), lineWidth: 1)
                     )
 
                     HStack(spacing: 12) {
                         Image(systemName: "scalemass.fill")
-                            .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
+                            .foregroundColor(theme.colors.accent)
                             .frame(width: 24)
-                        TextField("", text: $draftWeight, prompt: Text(ProfileScreenConstants.weightPlaceholder).foregroundColor(.white.opacity(0.4)))
-                            .foregroundColor(.white)
+                        TextField("", text: $draftWeight, prompt: Text(ProfileScreenConstants.weightPlaceholder).foregroundColor(theme.isDarkMode ? .white.opacity(0.4) : .black.opacity(0.4)))
+                            .foregroundColor(theme.colors.primaryText)
                             .keyboardType(.decimalPad)
                     }
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                            .fill(theme.colors.cardBackground.opacity(0.85))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(theme.isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08), lineWidth: 1)
                     )
                 }
                 .padding(.horizontal, 20)

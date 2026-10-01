@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct WelcomeCard: View {
-    
+
+    @EnvironmentObject var theme: ThemeManager
     let imageName: String
     let titleText: String
     let descriptionText: String
-    
+
     var body: some View {
         HStack(alignment: .center, spacing: 12){
             ZStack{
                 RoundedRectangle(cornerRadius: 15)
                     .fill(
+                        theme.isDarkMode ?
                         LinearGradient (
                             colors: [
                                 Color(red: 0.12, green: 0.28, blue: 0.24),
@@ -25,23 +27,31 @@ struct WelcomeCard: View {
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
+                        ) :
+                        LinearGradient (
+                            colors: [
+                                Color(red: 0.88, green: 0.94, blue: 0.92),
+                                Color.white
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
                         )
                     )
                     .frame(width:60 , height: 68)
-                
+
                 Image(systemName: imageName)
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
             }
-            
+
             VStack(alignment: .leading, spacing: 8){
                 Text(titleText)
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(.white)
-                
+                    .foregroundColor(theme.colors.primaryText)
+
                 Text(descriptionText)
                     .font(.system(size: 16, weight: .regular))
-                    .foregroundColor(Color.white.opacity(0.7))
+                    .foregroundColor(theme.colors.secondaryText)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -49,11 +59,12 @@ struct WelcomeCard: View {
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 15)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -64,4 +75,5 @@ struct WelcomeCard: View {
         titleText: WelcomeScreenConstants.Card1.title,
         descriptionText: WelcomeScreenConstants.Card1.des
     )
+    .environmentObject(ThemeManager())
 }

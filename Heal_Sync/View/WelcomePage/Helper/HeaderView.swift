@@ -11,6 +11,7 @@ import SwiftUI
 ///   (Activity / Insights / Profile).
 struct HeaderView: View {
 
+    @EnvironmentObject var theme: ThemeManager
     var title: String = ""
     var subTitle: String = ""
 
@@ -45,14 +46,14 @@ struct HeaderView: View {
                 Text(WelcomeScreenConstants.appName)
                     .fontWeight(.bold)
                     .font(.system(size: 30, design: .default))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(theme.colors.primaryText)
             }
 
             Spacer()
 
             Image(systemName: WelcomeScreenConstants.Images.menuIcon)
                 .font(.system(size: 30, weight: .bold))
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.primaryText)
         }
     }
 
@@ -62,11 +63,11 @@ struct HeaderView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 35, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.colors.primaryText)
 
             Text(subTitle)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.colors.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -79,4 +80,5 @@ struct HeaderView: View {
         HeaderView(title: "Profile", subTitle: "Manage Your Account")
     }
     .background(Color.black)
+    .environmentObject(ThemeManager())
 }
