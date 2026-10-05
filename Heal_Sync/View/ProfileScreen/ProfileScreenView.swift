@@ -19,6 +19,7 @@ struct ProfileScreenView: View {
     @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
 
     @State private var showLogoutConfirm = false
+    @State private var showBodyAlert = false
     @State private var showEditSheet = false
     @State private var draftName = ""
     @State private var photoItem: PhotosPickerItem?
@@ -35,7 +36,7 @@ struct ProfileScreenView: View {
 
     var body: some View {
         ZStack {
-            // 2. Screen background color -> theme
+            // Screen background
             ThemedBackground()
 
             ScrollView(showsIndicators: false) {
@@ -210,6 +211,11 @@ struct ProfileScreenView: View {
         } message: {
             Text(ProfileScreenConstants.logoutMessage)
         }
+        .alert(ProfileScreenConstants.bodyAlertTitle, isPresented: $showBodyAlert) {
+            Button(ProfileScreenConstants.bodyAlertOK, role: .cancel) { }
+        } message: {
+            Text(ProfileScreenConstants.bodyAlertMessage)
+        }
         .sheet(isPresented: $showEditSheet) {
             ProfileEditSheet(
                 draftName: $draftName,
@@ -226,6 +232,9 @@ struct ProfileScreenView: View {
             currentUser.refresh()
             refreshVitals()
             refreshHighlights()
+            if currentUser.heightCm <= 0 || currentUser.weightKg <= 0 {
+                showBodyAlert = true
+            }
         }
         .onChange(of: photoItem) { _, newItem in
             guard let newItem else { return }

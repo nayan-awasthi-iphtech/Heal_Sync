@@ -89,7 +89,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-    // Refresh Logic (stats only — identity lives in CurrentUserViewModel)
+    // Refresh Logic
     func refresh() {
         loadStats()
     }

@@ -13,7 +13,7 @@ struct ContentView: View {
         LandingPage()
     }
 }
-    
+
 #Preview {
     ContentView()
 }

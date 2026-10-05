@@ -9,9 +9,10 @@ import SwiftUI
 
 struct ProfileDayBanner: View {
 
+    @EnvironmentObject var theme: ThemeManager
     var todayTitle: String
 
-    private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
+    private var mintGreen: Color { theme.colors.accent }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -21,7 +22,7 @@ struct ProfileDayBanner: View {
 
             Text(todayTitle)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.primaryText)
 
             Spacer()
 
@@ -38,11 +39,12 @@ struct ProfileDayBanner: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal, 16)
     }

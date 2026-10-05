@@ -2,17 +2,18 @@ import SwiftUI
 import CoreData
 
 struct InsightsScreenView: View {
-    
+
     @StateObject private var heartRateManager = HeartRateManager()
     @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
     @EnvironmentObject var activityVM: ActivityViewModel
-    
+    @EnvironmentObject var theme: ThemeManager
+
     @State private var showInstructionsPopup: Bool = false
-    
+
     @State private var selectedTab: String = InsightsScreenConstants.health
-    
+
     @State private var selectedPeriod: SleepFilterPeriod = .tonight
-    
+
     // Sleep data state (or standard model instance)
     @State private var sleepData = InsightsSleepCardConstants.mockData(for: .tonight)
     let options = [
@@ -20,32 +21,24 @@ struct InsightsScreenView: View {
         InsightsScreenConstants.sleep,
         InsightsScreenConstants.calories
     ]
-    
+
     var body: some View {
-        
+
         ZStack{
-            LinearGradient(
-                colors: [
-                    Color(red: 0.05, green: 0.05, blue: 0.07),
-                    Color(red: 0.04, green: 0.10, blue: 0.07)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .ignoresSafeArea()
-            
+            ThemedBackground()
+
             ScrollView{
                 VStack{
-                    
+
                     HeaderView(title: InsightsScreenConstants.mainTitle, subTitle: InsightsScreenConstants.subtitle)
-                    
+
                     PickerView(selection: $selectedTab, options: options)
-                    
+
                     if selectedTab == InsightsScreenConstants.calories {
                         InsightsCaloriesCard()
                             .padding(.top, 8)
                     } else if selectedTab == InsightsScreenConstants.health {
-                        InsightsScreenCenterCard(liveBPM: heartRateManager.currentBPM)
+                        InsightsScreenCenterCard(liveBPM: heartRateManager.currentBPM, isMeasuring: heartRateManager.isMeasuring)
                             .padding(.top, 8)
                     } else {
                         InsightsSleepCard(
@@ -59,7 +52,7 @@ struct InsightsScreenView: View {
                         WeeklySleepChartView(manager: sleepTracker)
                             .padding(.top, 8)
                     }
-                    
+
                     if selectedTab == InsightsScreenConstants.sleep {
                         Button(action: {
                             if case .tracking = sleepTracker.currentState {
@@ -88,7 +81,7 @@ struct InsightsScreenView: View {
                         }
                         .padding(.top, 8)
                     }
-                    
+
                     if selectedTab == InsightsScreenConstants.health {
                         Button(action: {
                             withAnimation { showInstructionsPopup = true }
@@ -110,11 +103,11 @@ struct InsightsScreenView: View {
                         .opacity(heartRateManager.isMeasuring ? 0.5 : 1.0)
                         Text(InsightsScreenConstants.fitnessDisclaimer)
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(.white.opacity(0.55))
+                            .foregroundColor(theme.colors.secondaryText)
                             .multilineTextAlignment(.center)
                             .padding(.top, 4)
                     }
-                    
+
                     if selectedTab == InsightsScreenConstants.calories {
                         InsightsScreenBottomCard(
                             title: InsightsScreenConstants.caloriesKeepItUp,
@@ -131,7 +124,7 @@ struct InsightsScreenView: View {
                         InsightsScreenBottomCard()
                             .padding(.top, 10)
                     }
-                    
+
                     Spacer()
                 }
             }
@@ -168,10 +161,10 @@ struct InsightsScreenView: View {
                             }
                             Text(heartRateManager.currentBPM > 0 ? "\(heartRateManager.currentBPM) bpm" : "-- bpm")
                                 .font(.system(size: 34, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.colors.primaryText)
                             Text(heartRateManager.fingerDetected ? InsightsScreenConstants.scanningText : InsightsScreenConstants.placeFingerText)
                                 .font(.system(size: 14, weight: .regular))
-                                .foregroundColor(.white.opacity(0.75))
+                                .foregroundColor(theme.colors.secondaryText)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 12)
                             ProgressView(value: heartRateManager.scanProgress)
@@ -179,17 +172,17 @@ struct InsightsScreenView: View {
                                 .padding(.horizontal, 8)
                             Text(InsightsScreenConstants.fitnessDisclaimer)
                                 .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(.white.opacity(0.5))
+                                .foregroundColor(theme.colors.secondaryText)
                                 .multilineTextAlignment(.center)
                             Button(action: {
                                 heartRateManager.cancelMeasurement()
                             }) {
                                 Text(InsightsScreenConstants.cancel)
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(theme.colors.secondaryText)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(Color.white.opacity(0.08))
+                                    .background(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.06))
                                     .cornerRadius(10)
                             }
                         }
@@ -197,11 +190,12 @@ struct InsightsScreenView: View {
                         .frame(width: 300)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color(red: 0.10, green: 0.12, blue: 0.15))
+                                .fill(theme.colors.cardBackground)
+                                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.12), radius: 12, x: 0, y: 6)
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(theme.isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.08), lineWidth: 1)
                         )
                     }
                 }
@@ -224,7 +218,7 @@ struct InsightsScreenView: View {
             heartRateManager.cancelMeasurement()
         }
     }
-    
+
     private var calorieInsightMessage: String {
         let today = activityVM.todayCaloriesValue
         let goal = ActivityViewModel.dayCalorieGoal
@@ -251,5 +245,6 @@ struct InsightsScreenView: View {
         .ignoresSafeArea()
         InsightsScreenView()
             .environmentObject(ActivityViewModel())
+            .environmentObject(ThemeManager())
     }
 }

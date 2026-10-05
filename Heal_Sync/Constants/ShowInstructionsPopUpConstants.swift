@@ -18,3 +18,4 @@ struct ShowInstructionsPopUpConstants {
     static let startScan = "Start Scan"
     static let cancel = "Cancel"
 }
+

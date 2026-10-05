@@ -8,20 +8,21 @@
 import SwiftUI
 
 struct HomeBottomCard: View {
-    
+
+    @EnvironmentObject var theme: ThemeManager
     let imageName: String
     let titleText: String
-    
+
     var imageColor: Color = Color(red: 0.30, green: 0.92, blue: 0.65)
-    var backgroundColor: Color = Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85)
+    var backgroundColor: Color? = nil
     var customGlowColor: Color? = nil
-    
+
     private var glowColor: Color {
         customGlowColor ?? imageColor
     }
-    
+
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             Image(systemName: imageName)
                 .font(.system(size: 25))
                 .foregroundColor(imageColor)
@@ -39,23 +40,24 @@ struct HomeBottomCard: View {
                     )
                     .frame(width: 50, height: 50)
                 )
-            
+
             Text(titleText)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.primaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .minimumScaleFactor(0.85)
         }
         .padding(12)
-        .frame(maxWidth: 80, minHeight: 92, alignment: .leading)
+        .frame(maxWidth: 80, minHeight: 92, alignment: .center)
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(backgroundColor)
+                .fill(backgroundColor ?? theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 15)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -65,5 +67,5 @@ struct HomeBottomCard: View {
         imageName: "figure.run",
         titleText: "Log\nActivity",
     )
+    .environmentObject(ThemeManager())
 }
-
