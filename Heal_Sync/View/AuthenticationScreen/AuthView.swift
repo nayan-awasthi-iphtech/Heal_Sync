@@ -7,29 +7,22 @@
 import SwiftUI
 
 struct AuthView: View {
-    
+
     @EnvironmentObject var authViewModel: AuthViewModel
-    
+    @EnvironmentObject var theme: ThemeManager
+
     init() {
         UISegmentedControl.appearance().backgroundColor = UIColor(red: 0.08, green: 0.22, blue: 0.20, alpha: 0.6)
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(red: 0.30, green: 0.92, blue: 0.65, alpha: 1.0)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: 14, weight: .bold)], for: .selected)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white.withAlphaComponent(0.7), .font: UIFont.systemFont(ofSize: 14, weight: .semibold)], for: .normal)
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.05, green: 0.02, blue: 0.06),
-                        Color(red: 0.06, green: 0.20, blue: 0.19)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .ignoresSafeArea()
-                
+                ThemedBackground()
+
                 ScrollView {
                     VStack(spacing: 16) {
                         ZStack {
@@ -38,15 +31,21 @@ struct AuthView: View {
                                 .fill(Color(red: 0.30, green: 0.92, blue: 0.65).opacity(0.15))
                                 .frame(width: 140, height: 140)
                                 .blur(radius: 10)
-                            
+
                             // Dark Background Circle with Gradient Border
                             Circle()
                                 .fill(
+                                    theme.isDarkMode ?
                                     LinearGradient(
                                         colors: [
                                             Color(red: 0.08, green: 0.22, blue: 0.20),
                                             Color(red: 0.04, green: 0.10, blue: 0.12)
                                         ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ) :
+                                    LinearGradient(
+                                        colors: [Color.white, Color(red: 0.88, green: 0.94, blue: 0.92)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -58,7 +57,7 @@ struct AuthView: View {
                                             LinearGradient(
                                                 colors: [
                                                     Color(red: 0.30, green: 0.92, blue: 0.65),
-                                                    Color.white.opacity(0.1)
+                                                    theme.isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.08)
                                                 ],
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
@@ -66,8 +65,8 @@ struct AuthView: View {
                                             lineWidth: 2
                                         )
                                 )
-                                .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5)
-                            
+                                .shadow(color: theme.isDarkMode ? Color.black.opacity(0.5) : Color.black.opacity(0.12), radius: 10, x: 0, y: 5)
+
                             // App Symbol (Heart & Sync Indicator)
                             Image(systemName: "waveform.path.ecg")
                                 .resizable()
@@ -77,16 +76,16 @@ struct AuthView: View {
                         }
                         .padding(.top, 10)
                         .padding(.bottom, 8)
-                        
+
                         Text(authViewModel.authMode == .login ? AuthScreenConstants.loginTitle : AuthScreenConstants.signupTitle)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.colors.primaryText)
                             .font(.system(size: 28, weight: .bold))
-                        
+
                         Text(authViewModel.authMode == .login ? AuthScreenConstants.loginSubtitle : AuthScreenConstants.signupSubtitle)
                             .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                             .fontWeight(.semibold)
                             .font(.system(size: 15))
-                        
+
                        // Picker
                         Picker(AuthScreenConstants.select, selection: $authViewModel.authMode) {
                             ForEach(AuthMode.allCases, id: \.self) { mode in
@@ -95,10 +94,10 @@ struct AuthView: View {
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal, 10)
-                        
+
                         // Form Fields
                         VStack(spacing: 16) {
-                            
+
                             // Full Name Field (Sign Up Only)
                             if authViewModel.authMode == .signup {
                                 CustomTextField(
@@ -108,7 +107,7 @@ struct AuthView: View {
                                 )
                                 .transition(.move(edge: .top).combined(with: .opacity))
                             }
-                            
+
                             // Email Field
                             CustomTextField(
                                 iconName: "envelope.fill",
@@ -117,14 +116,14 @@ struct AuthView: View {
                             )
                             .textInputAutocapitalization(.never)
                             .keyboardType(.emailAddress)
-                            
+
                             // Password Field
                             CustomPasswordField(
                                 placeholder: AuthScreenConstants.passwordPlaceholder,
                                 password: $authViewModel.password,
                                 isVisible: $authViewModel.isPasswordVisible
                             )
-                            
+
                             // Forgot Password Link for Login
                             if authViewModel.authMode == .login {
                                 HStack {
@@ -138,7 +137,7 @@ struct AuthView: View {
                             }
                         }
                         .padding(.horizontal, 10)
-                        
+
                         // Button
                         Button(action: {
                             authViewModel.handlePrimaryAction()
@@ -155,7 +154,7 @@ struct AuthView: View {
                         }
                         .padding(.horizontal, 10)
                         .padding(.top, 8)
-                        
+
                         Spacer()
                     }
                 }
@@ -171,63 +170,67 @@ struct AuthView: View {
 
 // Input Field component
 struct CustomTextField: View {
+    @EnvironmentObject var theme: ThemeManager
     let iconName: String
     let placeholder: String
     @Binding var text: String
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
                 .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                 .frame(width: 24)
-            
-            TextField("", text: $text, prompt: Text(placeholder).foregroundColor(.white.opacity(0.4)))
-                .foregroundColor(.white)
+
+            TextField("", text: $text, prompt: Text(placeholder).foregroundColor(theme.colors.placeholderText))
+                .foregroundColor(theme.colors.primaryText)
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
     }
 }
 
 struct CustomPasswordField: View {
+    @EnvironmentObject var theme: ThemeManager
     let placeholder: String
     @Binding var password: String
     @Binding var isVisible: Bool
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "lock.fill")
                 .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                 .frame(width: 24)
-            
+
             if isVisible {
-                TextField("", text: $password, prompt: Text(placeholder).foregroundColor(.white.opacity(0.4)))
-                    .foregroundColor(.white)
+                TextField("", text: $password, prompt: Text(placeholder).foregroundColor(theme.colors.placeholderText))
+                    .foregroundColor(theme.colors.primaryText)
             } else {
-                SecureField("", text: $password, prompt: Text(placeholder).foregroundColor(.white.opacity(0.4)))
-                    .foregroundColor(.white)
+                SecureField("", text: $password, prompt: Text(placeholder).foregroundColor(theme.colors.placeholderText))
+                    .foregroundColor(theme.colors.primaryText)
             }
-            
+
             Button(action: { isVisible.toggle() }) {
                 Image(systemName: isVisible ? "eye.slash.fill" : "eye.fill")
-                    .foregroundColor(.white.opacity(0.5))
+                    .foregroundColor(theme.colors.secondaryText)
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -235,4 +238,5 @@ struct CustomPasswordField: View {
 #Preview {
     AuthView()
         .environmentObject(AuthViewModel())
+        .environmentObject(ThemeManager())
 }

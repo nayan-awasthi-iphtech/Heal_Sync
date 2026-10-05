@@ -14,9 +14,10 @@ struct ProfileScreenView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var activityViewModel: ActivityViewModel
     @EnvironmentObject var currentUser: CurrentUserViewModel
+    @EnvironmentObject var theme: ThemeManager
     @StateObject private var profileViewModel = ProfileViewModel()
     @StateObject private var sleepTracker = SleepTrackerManager(context: PersistenceController.shared.container.viewContext)
-    
+
     @State private var showLogoutConfirm = false
     @State private var showEditSheet = false
     @State private var draftName = ""
@@ -26,26 +27,20 @@ struct ProfileScreenView: View {
     @State private var todayBPM: Double = 0
     @State private var yesterdaySleepHours: Double = 0
     @State private var yesterdayLabel: String = ProfileScreenConstants.notSet
-    @AppStorage("healsync_is_dark_mode") private var isDarkMode = true
-
-    private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
+    @State private var bestDayStepsText: String = ProfileScreenConstants.notSet
+    @State private var bestDayLabel: String = ProfileScreenConstants.notSet
+    @State private var activeDaysText: String = ProfileScreenConstants.notSet
+    @State private var monthDistanceText: String = ProfileScreenConstants.notSet
+    @State private var streakText: String = ProfileScreenConstants.notSet
 
     var body: some View {
         ZStack {
-            // Background
-            LinearGradient(
-                colors: [
-                    Color(red: 0.04, green: 0.02, blue: 0.1),
-                    Color(red: 0.02, green: 0.15, blue: 0.17)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .ignoresSafeArea()
+            // 2. Screen background color -> theme
+            ThemedBackground()
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 14) {
-                    ProfileHeaderView(isDarkMode: $isDarkMode) {
+                    ProfileHeaderView {
                         draftName = currentUser.name
                         draftHeight = currentUser.heightCm > 0 ? String(currentUser.heightCm) : ""
                         draftWeight = currentUser.weightKg > 0 ? String(currentUser.weightKg) : ""
@@ -67,7 +62,7 @@ struct ProfileScreenView: View {
 
                     Text(profileViewModel.rangeSubtitle)
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.colors.primaryText)
                         .padding(.horizontal, 16)
 
                     VStack(spacing: 10) {
@@ -100,7 +95,7 @@ struct ProfileScreenView: View {
                             )
 
                             HomeScreenOverviewCard2(
-                                imageName: "stopwatch.fill",  
+                                imageName: "stopwatch.fill",
                                 titleText: ProfileScreenConstants.activeTime,
                                 descriptionText: profileViewModel.activeMinutesFormatted,
                                 resultText: ProfileScreenConstants.activeBadge
@@ -130,7 +125,7 @@ struct ProfileScreenView: View {
 
                     Text(ProfileScreenConstants.bodyMetricsTitle)
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.colors.primaryText)
                         .padding(.horizontal, 16)
 
                     HStack(alignment: .top, spacing: 10) {
@@ -151,6 +146,48 @@ struct ProfileScreenView: View {
                     .padding(.horizontal, 16)
 
                     ProfileBMICard(currentUser: currentUser)
+
+                    Text(ProfileScreenConstants.highlightsTitle)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(theme.colors.primaryText)
+                        .padding(.horizontal, 16)
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HomeScreenOverviewCard2(
+                            imageName: "trophy.fill",
+                            titleText: ProfileScreenConstants.bestDay,
+                            descriptionText: bestDayStepsText,
+                            resultText: bestDayLabel,
+                            imageColor: Color.orange
+                        )
+
+                        HomeScreenOverviewCard2(
+                            imageName: "calendar.badge.checkmark",
+                            titleText: ProfileScreenConstants.activeDays,
+                            descriptionText: activeDaysText,
+                            resultText: ProfileScreenConstants.last7Days,
+                            imageColor: Color.green
+                        )
+                    }
+                    .padding(.horizontal, 16)
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HomeScreenOverviewCard2(
+                            imageName: "map.fill",
+                            titleText: ProfileScreenConstants.monthDistance,
+                            descriptionText: monthDistanceText,
+                            resultText: ProfileScreenConstants.totalBadge
+                        )
+
+                        HomeScreenOverviewCard2(
+                            imageName: "flame.fill",
+                            titleText: ProfileScreenConstants.dayStreak,
+                            descriptionText: streakText,
+                            resultText: ProfileScreenConstants.activeBadge,
+                            imageColor: Color.red
+                        )
+                    }
+                    .padding(.horizontal, 16)
 
                     // Logout (with confirmation)
                     LogoutButton {
@@ -188,6 +225,7 @@ struct ProfileScreenView: View {
             profileViewModel.refresh()
             currentUser.refresh()
             refreshVitals()
+            refreshHighlights()
         }
         .onChange(of: photoItem) { _, newItem in
             guard let newItem else { return }
@@ -203,9 +241,11 @@ struct ProfileScreenView: View {
         // Live: refresh profile stats whenever the shared tracker records new data.
         .onChange(of: activityViewModel.lastUpdated) { _, _ in
             profileViewModel.refresh()
+            refreshHighlights()
         }
         .onChange(of: sleepTracker.sleepVersion) { _, _ in
             refreshVitals()
+            refreshHighlights()
         }
         .onChange(of: authViewModel.isAuthenticated) { _, newValue in
             print("🔄 ProfileScreenView observed isAuthenticated change: \(newValue)")
@@ -239,6 +279,55 @@ struct ProfileScreenView: View {
         }
     }
 
+    private func refreshHighlights() {
+        let calendar = Calendar.current
+        let now = Date()
+        let startToday = calendar.startOfDay(for: now)
+        let store = ActivityStore.shared
+
+        var bestSteps = 0
+        var bestDate: Date?
+        var activeCount = 0
+        var totalDistance = 0.0
+        var totalSteps30 = 0
+        for offset in 0..<30 {
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: startToday) else { continue }
+            let record = store.loadDay(dayID: ActivityStore.dayID(for: date))
+            let steps = record?.steps ?? 0
+            if steps > 0 {
+                activeCount += 1
+                totalSteps30 += steps
+                let dist = record?.distance ?? 0
+                totalDistance += dist > 0 ? dist : Double(steps) * 0.75
+            }
+            if steps > bestSteps {
+                bestSteps = steps
+                bestDate = date
+            }
+        }
+        if bestSteps > 0, let bestDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEE, MMM d"
+            bestDayStepsText = "\(bestSteps.formatted()) \(ProfileScreenConstants.stepsUnit)"
+            bestDayLabel = formatter.string(from: bestDate)
+        } else {
+            bestDayStepsText = ProfileScreenConstants.notSet
+            bestDayLabel = ProfileScreenConstants.notSet
+        }
+        activeDaysText = activeCount > 0 ? "\(activeCount) \(activeCount == 1 ? ProfileScreenConstants.dayUnit : ProfileScreenConstants.daysUnit)" : ProfileScreenConstants.notSet
+        monthDistanceText = totalDistance > 0 ? String(format: "%.1f km", totalDistance / 1000.0) : ProfileScreenConstants.notSet
+
+        var streak = 0
+        for offset in 0..<30 {
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: startToday) else { break }
+            let steps = store.loadDay(dayID: ActivityStore.dayID(for: date))?.steps ?? 0
+            if offset == 0 && steps == 0 { continue }
+            guard steps > 0 else { break }
+            streak += 1
+        }
+        streakText = streak > 0 ? "\(streak) \(streak == 1 ? ProfileScreenConstants.dayUnit : ProfileScreenConstants.daysUnit)" : ProfileScreenConstants.notSet
+    }
+
 }
 
 #Preview {
@@ -246,6 +335,5 @@ struct ProfileScreenView: View {
         .environmentObject(AuthViewModel())
         .environmentObject(ActivityViewModel())
         .environmentObject(CurrentUserViewModel())
+        .environmentObject(ThemeManager())
 }
-
-

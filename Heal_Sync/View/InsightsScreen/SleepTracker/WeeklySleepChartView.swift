@@ -7,6 +7,7 @@ import SwiftUI
 import Charts
 
 struct WeeklySleepChartView: View {
+    @EnvironmentObject var theme: ThemeManager
     @ObservedObject var manager: SleepTrackerManager
 
     // Local Chart State
@@ -27,9 +28,9 @@ struct WeeklySleepChartView: View {
 
                     Text("\(formattedTotalWeeklyHours) \(WeeklySleepChartConstants.hrsUnit)")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(theme.colors.primaryText)
                 }
-                
+
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 8) {
@@ -80,7 +81,7 @@ struct WeeklySleepChartView: View {
             .chartYAxis {
                 AxisMarks(position: .leading, values: [0, 4, 8, 12, 16]) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [4]))
-                        .foregroundStyle(Color.white.opacity(0.1))
+                        .foregroundStyle(theme.isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.12))
                     AxisValueLabel() {
                         if let intVal = value.as(Int.self) {
                             Text("\(intVal)h")
@@ -104,8 +105,14 @@ struct WeeklySleepChartView: View {
             .frame(height: 180)
         }
         .padding(16)
-        .background(Color(red: 0.11, green: 0.11, blue: 0.12))
+//        .frame(width: 365, alignment: .center)
+        .background(theme.colors.cardBackground)
         .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
+        )
+        .padding(.horizontal, 16)
         .onAppear {
             refreshChartData()
         }
@@ -119,7 +126,7 @@ struct WeeklySleepChartView: View {
             VStack(spacing: 16) {
                 Text(WeeklySleepChartConstants.sleepTitle)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.primaryText)
                     .padding(.top, 8)
                 Picker(WeeklySleepChartConstants.pickerTitle, selection: $editNight) {
                     ForEach(chartBars) { bar in
@@ -140,7 +147,7 @@ struct WeeklySleepChartView: View {
                         .background(Circle().fill(Color(red: 0.30, green: 0.92, blue: 0.65)))
                     Text(String(format: "%.1f h", editHours))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(theme.colors.primaryText)
                         .frame(minWidth: 120)
                     Button("+") { editHours = min(16, ((editHours + 0.5) * 10).rounded() / 10) }
                         .font(.system(size: 22, weight: .bold))
@@ -162,7 +169,7 @@ struct WeeklySleepChartView: View {
                     showEditSheet = false
                 }
                 Button(WeeklySleepChartConstants.cancel, role: .cancel) { showEditSheet = false }
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(theme.colors.secondaryText)
                 Spacer()
             }
             .padding(20)
@@ -174,12 +181,12 @@ struct WeeklySleepChartView: View {
 
     private func barColor(for bar: SleepBarData) -> Color {
         if bar.isDummy {
-            return Color.white.opacity(0.25)
+            return theme.isDarkMode ? Color.white.opacity(0.25) : Color.gray.opacity(0.35)
         }
         if bar.isToday {
             return bar.isLive ? Color.green : Color(red: 0.30, green: 0.92, blue: 0.65)
         }
-        return Color.white.opacity(0.25)
+        return theme.isDarkMode ? Color.white.opacity(0.25) : Color.gray.opacity(0.35)
     }
 
     // Pipeline Calculation

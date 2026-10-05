@@ -36,7 +36,7 @@ struct ProfileScreenConstants {
     static let sleep = "Sleep"
     static let bpmUnit = "bpm"
 
-    // User card 
+    // User card
 
     static let memberSinceFormat = "Member since %@"
     static let unknownUser = "—"
@@ -71,4 +71,18 @@ struct ProfileScreenConstants {
     static let bmiOverweight = "Overweight"
     static let bmiObese = "Obese"
     static let bmiHealthyRange = "18.5 – 24.9 healthy"
+
+    // Highlights (same card UI, existing stores only)
+
+    static let highlightsTitle = "Highlights"
+    static let bestDay = "Best Day"
+    static let activeDays = "Active Days"
+    static let monthDistance = "30-Day Distance"
+    static let dayStreak = "Day Streak"
+    static let daysUnit = "days"
+    static let dayUnit = "day"
+    static let stepsUnit = "steps"
+
+    // Wellness week removed — kept last7Days (used by Highlights Active Days)
+    static let last7Days = "Last 7 days"
 }

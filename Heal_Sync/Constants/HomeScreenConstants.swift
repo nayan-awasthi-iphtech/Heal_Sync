@@ -11,6 +11,9 @@ struct HomeScreenConstants {
     
     struct Greetings {
         static let goodMorning = "Good Morning,"
+        static let goodAfternoon = "Good Afternoon,"
+        static let goodEvening = "Good Evening,"
+        static let goodNight = "Good Night,"
         static let fallbackName = "Friend"
         static let subtitle = "Your Health Journey matters!"
     }
@@ -22,6 +25,8 @@ struct HomeScreenConstants {
         static let tagline = "Track, Improve, Live Better."
         static let buttonTitle = "Explore Your Health"
     }
+    
+    
     
     struct Overview {
         static let sectionTitle = "Today's Overview"

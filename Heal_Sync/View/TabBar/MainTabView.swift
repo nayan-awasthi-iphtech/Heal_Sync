@@ -13,41 +13,41 @@ struct MainTabView: View {
     @StateObject private var currentUser = CurrentUserViewModel()
     @State private var selectedTab = 0
     @Environment(\.scenePhase) private var scenePhase
-    
+
     init() {
         // Sets up dark background for the TabBar to match your theme
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(red: 0.02, green: 0.09, blue: 0.04, alpha: 0.95)
-        
+
         // Sets unselected tab item icon and text colors
         appearance.compactInlineLayoutAppearance.normal.iconColor = .lightGray
         appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.lightGray]
-        
+
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
-    
+
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeScreenView(onProfileTap: { selectedTab = 3 })
+            HomeScreenView(onProfileTap: { selectedTab = 3 }, onHealthTap: {selectedTab = 2})
                 .tag(0)
                 .tabItem {
                     Label(TabBarConstants.home, systemImage: "house.fill")
                 }
-            
+
             ActivityScreenView()
                 .tag(1)
                 .tabItem {
                     Label(TabBarConstants.activity, systemImage: "figure.run")
                 }
-            
+
             InsightsScreenView()
                 .tag(2)
                 .tabItem {
                     Label(TabBarConstants.health, systemImage: "heart.fill")
                 }
-            
+
             ProfileScreenView()
                 .tag(3)
                 .tabItem {
