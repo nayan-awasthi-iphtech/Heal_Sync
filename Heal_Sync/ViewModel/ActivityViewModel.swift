@@ -25,8 +25,10 @@ final class ActivityViewModel: ObservableObject {
     @Published private(set) var todaySteps: Int = 0
     @Published private(set) var todayDistanceMeters: Double = 0.0
 
-    // Manual tracking: the counter runs only after the user taps Start.
     @Published private(set) var isTracking = false
+    @Published private(set) var pedometerError: String?
+    @Published private(set) var isPedometerAvailable: Bool = true
+    @Published private(set) var isPermissionDenied: Bool = false
 
     static let dayStepGoal = 10000
     static let dayCalorieGoal = 500
@@ -45,9 +47,7 @@ final class ActivityViewModel: ObservableObject {
         setupObservers()
     }
 
-    // Bindings
     private func setupObservers() {
-        // Sync steps from sensor layer and persist today's metrics
         pedometer.$currentSteps
             .dropFirst()
             .sink { [weak self] steps in
@@ -60,8 +60,6 @@ final class ActivityViewModel: ObservableObject {
                 self.persistToday()
             }
             .store(in: &cancellables)
-
-        // Sync distance from sensor layer
         pedometer.$distanceMeters
             .dropFirst()
             .sink { [weak self] distance in
@@ -72,6 +70,21 @@ final class ActivityViewModel: ObservableObject {
                     self.todayDistanceMeters = distance
                 }
                 self.persistToday()
+            }
+            .store(in: &cancellables)
+        pedometer.$lastError
+            .sink { [weak self] value in
+                self?.pedometerError = value
+            }
+            .store(in: &cancellables)
+        pedometer.$isAvailable
+            .sink { [weak self] value in
+                self?.isPedometerAvailable = value
+            }
+            .store(in: &cancellables)
+        pedometer.$isPermissionDenied
+            .sink { [weak self] value in
+                self?.isPermissionDenied = value
             }
             .store(in: &cancellables)
     }
@@ -99,7 +112,7 @@ final class ActivityViewModel: ObservableObject {
         "\(Int(Double(currentSteps) / 100.0))"
     }
 
-    // MARK: - Home Card Metrics
+    // Home Card Metrics
     var todayStepsFormatted: String {
         todaySteps.formatted()
     }
@@ -120,7 +133,7 @@ final class ActivityViewModel: ObservableObject {
         min(max(Double(todayCaloriesValue) / Double(Self.dayCalorieGoal), 0), 1)
     }
 
-    // MARK: - Persistence & Range Calculation
+    // Persistence & Range Calculation
     private var todayID: String {
         ActivityStore.dayID(for: Date())
     }
@@ -171,7 +184,7 @@ final class ActivityViewModel: ObservableObject {
         lastUpdated = Date()
     }
 
-    // MARK: - View Lifecycle & Lifecycle Intents
+    // View Lifecycle & Lifecycle Intents
     func loadActivityData(for timeFrame: String) {
         selectedTab = timeFrame
 
@@ -183,13 +196,12 @@ final class ActivityViewModel: ObservableObject {
                 pedometer.loadActivityData(for: timeFrame)
             }
         } else {
-            pedometer.loadActivityData(for: timeFrame)
+            pedometer.stopTracking()
             showRangeSum(for: timeFrame)
         }
     }
 
-    /// Shows cached values only — never auto-starts the counter, so users who
-    /// just open the app to check don't get live counting.
+    // Shows cached values only
     func onAppear() {
         if selectedTab == "Day" {
             restoreToday()
@@ -203,7 +215,7 @@ final class ActivityViewModel: ObservableObject {
         pedometer.stopTracking()
     }
 
-    /// User tapped Start: begin the live Day stream from the cached base.
+    // User tapped Start
     func startTracking() {
         isTracking = true
         lastUpdated = Date()
@@ -213,24 +225,20 @@ final class ActivityViewModel: ObservableObject {
         }
     }
 
-    /// User tapped Stop: persist and kill the live stream.
+    // User tapped Stop
     func stopTracking() {
         isTracking = false
         persistToday()
         pedometer.stopTracking()
     }
 
-    // MARK: - App Lifecycle (stops counting while backgrounded/killed)
-
-    /// Call when the app goes to background: persists and kills the live
-    /// stream + simulator timer so the counter cannot run while away.
+    // App Lifecycle
     func appDidEnterBackground() {
         persistToday()
         pedometer.stopTracking()
     }
 
-    /// Call when returning from background: restores the cache and restarts
-    /// the stream, continuing today's total instead of resetting.
+    // Call when returning from background
     func appBecameActive() {
         loadActivityData(for: selectedTab)
     }

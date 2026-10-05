@@ -9,17 +9,17 @@ import Foundation
 import CoreData
 
 extension SleepTrackerManager {
-    
+
     func saveSleepRecord(durationHours: Double, startTime: Date, endTime: Date) {
         guard let owner = currentUser() else { return }
         let nightDate = Calendar.current.startOfDay(for: startTime)
         let ownerID = owner.objectID
-        
+
         viewContext.performAndWait { [weak self] in
             guard let self = self else { return }
-            
+
             let newRecord = NSEntityDescription.insertNewObject(forEntityName: "SleepRecord", into: self.viewContext)
-            
+
             newRecord.setValue(UUID(), forKey: "id")
             newRecord.setValue(nightDate, forKey: "date")
             let props = newRecord.entity.propertiesByName
@@ -34,7 +34,7 @@ extension SleepTrackerManager {
             if let ownerObj = try? self.viewContext.existingObject(with: ownerID) {
                 newRecord.setValue(ownerObj, forKey: "owner")
             }
-            
+
             do {
                 if self.viewContext.hasChanges {
                     try self.viewContext.save()
@@ -47,7 +47,7 @@ extension SleepTrackerManager {
             }
         }
     }
-    
+
     func saveNight(_ night: Date, hours: Double) {
         let nightStart = Calendar.current.startOfDay(for: night)
         let clamped = min(max(hours, 0), maxAllowedSleepHours)
@@ -56,19 +56,19 @@ extension SleepTrackerManager {
         markTouchedNight(nightStart)
         sleepVersion += 1
     }
-    
+
     func clearNight(_ night: Date) {
         let nightStart = Calendar.current.startOfDay(for: night)
         replaceNightRecords(nightStart: nightStart, hours: 0)
         markTouchedNight(nightStart)
         sleepVersion += 1
     }
-    
+
     func replaceNightRecords(nightStart: Date, hours: Double) {
         guard let owner = currentUser() else { return }
         let ownerID = owner.objectID
         guard let nextNight = Calendar.current.date(byAdding: .day, value: 1, to: nightStart) else { return }
-        
+
         viewContext.performAndWait { [weak self] in
             guard let self = self else { return }
             let request = NSFetchRequest<NSManagedObject>(entityName: "SleepRecord")
@@ -102,7 +102,7 @@ extension SleepTrackerManager {
             }
         }
     }
-    
+
     func markTouchedNight(_ nightStart: Date) {
         var ids = userDefaults.stringArray(forKey: touchedNightsKey) ?? []
         let id = Self.dayID(for: nightStart)
@@ -111,7 +111,7 @@ extension SleepTrackerManager {
             userDefaults.set(ids, forKey: touchedNightsKey)
         }
     }
-    
+
     func isTouchedNight(_ night: Date) -> Bool {
         let id = Self.dayID(for: Calendar.current.startOfDay(for: night))
         return (userDefaults.stringArray(forKey: touchedNightsKey) ?? []).contains(id)

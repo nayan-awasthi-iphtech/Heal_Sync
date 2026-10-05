@@ -7,20 +7,13 @@ import SwiftUI
 
 struct ActivityScreenView: View {
 
-    // Shared tracker owned by MainTabView 
+    // Shared tracker owned by MainTabView
     @EnvironmentObject var viewModel: ActivityViewModel
+    @EnvironmentObject var theme: ThemeManager
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.05, green: 0.02, blue: 0.06),
-                    Color(red: 0.06, green: 0.10, blue: 0.09)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .ignoresSafeArea()
+            ThemedBackground()
 
             ScrollView(showsIndicators: false) {
                 HeaderView(title: ActivityScreenConstants.mainTitle, subTitle: ActivityScreenConstants.subtitle)
@@ -47,7 +40,29 @@ struct ActivityScreenView: View {
                         }
                     }
                 )
-
+                if !viewModel.isPedometerAvailable {
+                    Text("Step counting is not available on this device.")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                if let pedometerError = viewModel.pedometerError {
+                    Text(pedometerError)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                if viewModel.isPermissionDenied {
+                    Button("Open Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    .font(.system(size: 15, weight: .bold))
+                    .padding(.top, 4)
+                }
                 VStack(spacing: 25) {
                     HStack(spacing: 50) {
                         ActivityScreenStatsComponent(
@@ -55,11 +70,11 @@ struct ActivityScreenView: View {
                             titleText: viewModel.distanceKmFormatted,
                             unitText: ActivityScreenConstants.km
                         )
-                        
+
                         Rectangle()
-                            .fill(Color.white)
+                            .fill(theme.isDarkMode ? Color.white : Color.black.opacity(0.15))
                             .frame(width: 2, height: 80)
-                        
+
                         ActivityScreenStatsComponent(
                             ImageName: ActivityScreenConstants.StatsImages.flame,
                             isSystemImage: true,
@@ -67,11 +82,11 @@ struct ActivityScreenView: View {
                             unitText: ActivityScreenConstants.kcal,
                             ImageColor: .red
                         )
-                        
+
                         Rectangle()
-                            .fill(Color.white)
+                            .fill(theme.isDarkMode ? Color.white : Color.black.opacity(0.15))
                             .frame(width: 2, height: 80)
-                        
+
                         ActivityScreenStatsComponent(
                             ImageName: ActivityScreenConstants.StatsImages.watch,
                             isSystemImage: true,
@@ -82,7 +97,12 @@ struct ActivityScreenView: View {
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color(red: 0.06, green: 0.10, blue: 0.15))
+                            .fill(theme.colors.cardBackground)
+                            .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
                     )
 
                     ActivityScreenBottomCard(
@@ -98,4 +118,5 @@ struct ActivityScreenView: View {
 #Preview {
     ActivityScreenView()
         .environmentObject(ActivityViewModel())
+        .environmentObject(ThemeManager())
 }

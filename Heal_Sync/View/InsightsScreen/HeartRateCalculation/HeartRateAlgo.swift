@@ -27,7 +27,7 @@ extension HeartRateManager {
         }
         let timeSinceLastPeak = timestamp - lastPeakMediaTime
         if smooth > lastRedValue {
-            if !isRising {   
+            if !isRising{
                 riseValley = lastRedValue
                 isRising = true
             }

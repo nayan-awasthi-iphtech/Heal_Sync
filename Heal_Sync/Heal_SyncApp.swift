@@ -12,12 +12,14 @@ import CoreData
 struct Heal_SyncApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var themeManager = ThemeManager()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(authViewModel)
+                .environmentObject(themeManager)
         }
     }
 }
@@ -25,8 +27,9 @@ struct Heal_SyncApp: App {
 // Separate Root Controller to manage app transitions smoothly
 struct RootView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var theme: ThemeManager
     @State private var showSplash: Bool = true
-    
+
     var body: some View {
         Group {
             if showSplash {
@@ -46,5 +49,6 @@ struct RootView: View {
                 }
             }
         }
+        .preferredColorScheme(theme.colorScheme)
     }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ActivityScreenBottomCard: View {
+    @EnvironmentObject var theme: ThemeManager
     var distanceKm: String = "0.0"
     var activityDate: Date = Date()
 
@@ -38,37 +39,42 @@ struct ActivityScreenBottomCard: View {
                 .fontWeight(.heavy)
                 .frame(width: 50, height: 50)
                 .foregroundStyle(Color(red: 0.20, green: 0.69, blue: 0.67))
-            
+
             VStack(alignment: .leading){
                 Text("\(daypart) \(ActivityScreenConstants.run)")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
-                
+                    .foregroundStyle(theme.colors.primaryText)
+
                 Text("\(ActivityScreenConstants.today), \(timeString)")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.colors.secondaryText)
             }
-            
+
             Spacer()
-            
+
             HStack(spacing: 3){
                 Text(distanceKm)
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.colors.primaryText)
                     .contentTransition(.numericText())
                 Text(ActivityScreenConstants.kmeter)
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.colors.secondaryText)
             }
-            
+
             Image(systemName: ActivityScreenConstants.chevronRightImage)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.secondaryText)
         }
         .padding(15)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.06, green: 0.10, blue: 0.15))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal,15)
     }
@@ -86,5 +92,6 @@ struct ActivityScreenBottomCard: View {
         )
         .ignoresSafeArea()
         ActivityScreenBottomCard()
+            .environmentObject(ThemeManager())
     }
 }

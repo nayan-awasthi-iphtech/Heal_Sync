@@ -21,33 +21,33 @@ enum SleepTrackerState: Equatable {
 }
 
 final class SleepTrackerManager: ObservableObject {
-    
+
     @Published var currentState: SleepTrackerState = .idle
     @Published var sleepVersion: Int = 0
-    
+
     let viewContext: NSManagedObjectContext
     let userDefaults: UserDefaults
-    
+
     let maxAllowedSleepHours: Double = 16.0
-    
+
     var timerCancellable: AnyCancellable?
-    
+
     static let sleepStartTimeBaseKey = "SleepTracker_startTimeKey"
-    
+
     init(
         context: NSManagedObjectContext,
         defaults: UserDefaults = .standard
     ) {
         self.viewContext = context
         self.userDefaults = defaults
-        
+
         restoreActiveSessionIfNeeded()
     }
-    
+
     deinit {
         timerCancellable?.cancel()
     }
-    
+
     static func removePendingSession(defaults: UserDefaults = .standard, email: String?) {
         let clean = (email ?? "").lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         if !clean.isEmpty {
