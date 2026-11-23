@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct StepProgressCard: View {
+    @EnvironmentObject var theme: ThemeManager
     let currentSteps: Int
     let goalSteps: Int
 
@@ -20,7 +21,10 @@ struct StepProgressCard: View {
     }
 
     private let primaryGreen = Color(red: 0.20, green: 0.69, blue: 0.67)
-    private let trackColor = Color(red: 0.08, green: 0.16, blue: 0.18)
+
+    private var trackColor: Color {
+        theme.isDarkMode ? Color(red: 0.08, green: 0.16, blue: 0.18) : Color.black.opacity(0.10)
+    }
 
     private var trackingButton: some View {
         Button(action: onToggleTracking) {
@@ -32,8 +36,8 @@ struct StepProgressCard: View {
                     Circle()
                         .fill(isTracking ? Color.blue.opacity(0.0) : Color(red: 0.30, green: 0.92, blue: 0.85).opacity(0.35))
                 )
-                .overlay(Circle().stroke(Color.white.opacity(0.35), lineWidth: 1.5))
-                .shadow(color: .black, radius: 8, x: 0, y: 14)
+                .overlay(Circle().stroke(theme.isDarkMode ? Color.white.opacity(0.35) : Color.black.opacity(0.15), lineWidth: 1.5))
+                .shadow(color: theme.isDarkMode ? .black : .black.opacity(0.15), radius: 8, x: 0, y: 14)
         }
         .accessibilityLabel(isTracking ? ActivityScreenConstants.Symbols.stop : ActivityScreenConstants.Symbols.start)
         .offset(x: 58, y: -15)
@@ -60,12 +64,12 @@ struct StepProgressCard: View {
 
                 Text(currentSteps.formatted())
                     .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.primaryText)
                     .contentTransition(.numericText())
 
                 Text(ActivityScreenConstants.steps)
                     .font(.system(size: 21, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(theme.colors.secondaryText)
 
                 Text("/ \(goalSteps.formatted())")
                     .font(.system(size: 18, weight: .semibold))
@@ -93,7 +97,6 @@ struct StepProgressCard: View {
         )
         .ignoresSafeArea()
         StepProgressCard(currentSteps: 7000, goalSteps: 10000)
+            .environmentObject(ThemeManager())
     }
 }
-
-

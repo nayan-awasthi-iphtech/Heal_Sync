@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct InstructionPopupCard: View {
+    @EnvironmentObject var theme: ThemeManager
     var onStart: () -> Void
     var onCancel: () -> Void
-    
-    private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
-    private let cardBackground = Color(red: 0.10, green: 0.12, blue: 0.15)
-    
+
+    private var mintGreen: Color { theme.colors.accent }
+    private var cardBackground: Color { theme.colors.cardBackground }
+
     var body: some View {
         ZStack {
             // Dimmed backdrop
@@ -22,7 +23,7 @@ struct InstructionPopupCard: View {
                 .onTapGesture {
                     onCancel()
                 }
-            
+
             // Popup Card
             VStack(spacing: 18) {
                 // Header Icon
@@ -30,44 +31,44 @@ struct InstructionPopupCard: View {
                     Circle()
                         .fill(mintGreen.opacity(0.15))
                         .frame(width: 56, height: 56)
-                    
+
                     Image(systemName: "hand.point.up.fill")
                         .font(.system(size: 26, weight: .bold))
                         .foregroundColor(mintGreen)
                 }
                 .padding(.top, 6)
-                
+
                 // Text Content
                 VStack(spacing: 8) {
                     Text(ShowInstructionsPopUpConstants.measureTitle)
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                    
+                        .foregroundColor(theme.colors.primaryText)
+
                     Text(ShowInstructionsPopUpConstants.instructionsText)
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(theme.colors.secondaryText)
                         .multilineTextAlignment(.center)
                         .lineSpacing(2)
 
                     Text(InsightsScreenConstants.fitnessDisclaimer)
                         .font(.system(size: 11, weight: .regular))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(theme.colors.secondaryText)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 8)
-                
+
                 // Action Buttons
                 HStack(spacing: 12) {
                     Button(action: onCancel) {
                         Text(ShowInstructionsPopUpConstants.cancel)
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(theme.colors.secondaryText)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.white.opacity(0.08))
+                            .background(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.06))
                             .cornerRadius(10)
                     }
-                    
+
                     Button(action: onStart) {
                         Text(ShowInstructionsPopUpConstants.startScan)
                             .font(.system(size: 14, weight: .bold))
@@ -85,16 +86,17 @@ struct InstructionPopupCard: View {
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(cardBackground)
+                    .shadow(color: theme.isDarkMode ? .black.opacity(0.4) : .black.opacity(0.12), radius: 20, x: 0, y: 10)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    .stroke(theme.isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.08), lineWidth: 1)
             )
-            .shadow(color: .black.opacity(0.4), radius: 20, x: 0, y: 10)
         }
     }
 }
 
 #Preview {
     InstructionPopupCard(onStart: {}, onCancel: {})
+        .environmentObject(ThemeManager())
 }

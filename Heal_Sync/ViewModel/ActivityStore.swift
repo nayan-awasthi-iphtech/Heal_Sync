@@ -40,8 +40,7 @@ final class ActivityStore {
         return try? context.fetch(request).first
     }
 
-    // Single source of truth for steps -> kcal conversion.
-    // Stored per day in Core Data; older rows without calories fall back to this.
+    // Single source of truth for steps
     static func calories(for steps: Int) -> Double {
         Double(steps) * 0.043
     }
@@ -124,11 +123,7 @@ final class ActivityStore {
         return (Int(totalSteps), totalDistance, totalCalories)
     }
 
-    // MARK: - Calories by day (Insights)
-
-    /// One entry per calendar day, oldest -> newest, driven by the `date`
-    /// saved in Core Data. Missing days come back as 0 so the chart keeps
-    /// its 7 slots aligned to the real weekday.
+    // Calories by day
     func dailyCalories(end: Date = Date(), days: Int = 7) -> [(dayID: String, date: Date, calories: Double)] {
         let calendar = Calendar.current
         let endDay = calendar.startOfDay(for: end)
@@ -142,7 +137,7 @@ final class ActivityStore {
         return result
     }
 
-    /// Sum of saved calories in [start, end] inclusive, by stored `date`.
+    // Sum of saved calories
     func sumCalories(from start: Date, to end: Date) -> Double {
         sumDays(from: start, to: end).calories
     }

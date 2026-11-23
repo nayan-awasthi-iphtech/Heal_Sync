@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct InsightsScreenBottomCard: View {
+    @EnvironmentObject var theme: ThemeManager
     var title: String = InsightsScreenConstants.keepItUp
     var message: String = InsightsScreenConstants.healthyRange
     var body: some View {
@@ -21,23 +22,28 @@ struct InsightsScreenBottomCard: View {
                         .fill(Color.yellow.opacity(0.2))
                         .blur(radius: 10)
                 )
-            
+
             VStack(alignment: .leading, spacing: 5){
                 Text(title)
                     .font(.system(size: 21, weight: .medium))
-                    .foregroundStyle(.white)
-                
+                    .foregroundStyle(theme.colors.primaryText)
+
                 Text(message)
                     .font(.system(size: 16))
-                    .foregroundStyle(.white)
-                
+                    .foregroundStyle(theme.colors.secondaryText)
+
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 17)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 17)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal, 16)
     }
@@ -55,5 +61,6 @@ struct InsightsScreenBottomCard: View {
         )
         .ignoresSafeArea()
         InsightsScreenBottomCard()
+            .environmentObject(ThemeManager())
     }
 }

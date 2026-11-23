@@ -27,7 +27,7 @@ extension HeartRateManager: AVCaptureVideoDataOutputSampleBufferDelegate {
                 let offset = y * bytesPerRow + x * 4
                 totalBlue += Int(buffer[offset])
                 totalGreen += Int(buffer[offset + 1])
-                totalRed += Int(buffer[offset + 2])  
+                totalRed += Int(buffer[offset + 2])
                 sampledPixels += 1
             }
         }

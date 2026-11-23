@@ -23,7 +23,7 @@ final class CurrentUserViewModel: ObservableObject {
         name.isEmpty ? ProfileScreenConstants.unknownUser : name
     }
 
-    /// First name for the Home greeting; falls back to default constant if empty.
+    // First name for the Home greeting; falls back to default constant if empty.
     var firstName: String {
         let first = name.components(separatedBy: .whitespaces).first ?? ""
         return first.isEmpty ? HomeScreenConstants.Greetings.fallbackName : first
@@ -153,6 +153,22 @@ final class CurrentUserViewModel: ObservableObject {
                 context.rollback()
             }
         }
+    }
+
+    // Returns an error message if the name is invalid, nil if valid.
+    // Height/weight are optional, so they are intentionally not validated here.
+    func validateName(_ raw: String) -> String? {
+        let clean = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if clean.isEmpty {
+            return ProfileScreenConstants.nameRequired
+        }
+        if clean.count < 2 {
+            return ProfileScreenConstants.nameTooShort
+        }
+        if clean.count > 50 {
+            return ProfileScreenConstants.nameTooLong
+        }
+        return nil
     }
 
     // Updates the logged-in user's display name.

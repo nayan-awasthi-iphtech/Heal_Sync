@@ -8,44 +8,46 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
-    
+
     var onProfileTap: () -> Void = {}
     @EnvironmentObject var currentUser: CurrentUserViewModel
-    
+    @EnvironmentObject var theme: ThemeManager
+
     var body: some View {
-        HStack(alignment: .center, spacing: 10) { 
+        HStack(alignment: .center, spacing: 10) {
             HStack(spacing: 12) {
                 ZStack {
                     Image(systemName: WelcomeScreenConstants.Images.heartFill)
                         .resizable()
-                        .font(.title)     
+                        .font(.title)
                         .foregroundColor(Color(red: 0.30, green: 0.92, blue: 0.65))
                         .frame(width: 38, height: 34)
-                    
+
                     Image(systemName: WelcomeScreenConstants.Images.ecgWaveform)
                         .resizable()
                         .font(.caption)
                         .foregroundColor(.black)
                         .frame(width: 38, height: 18)
                 }
-                
+
                 Text(WelcomeScreenConstants.appName)
                     .fontWeight(.bold)
                     .font(.system(size: 30, design: .default))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(theme.colors.primaryText)
             }
             Spacer()
-            
+
             ZStack{
                 Circle()
-                    .fill(.black.opacity(0.3))
+                    .fill(theme.isDarkMode ? .black.opacity(0.3) : .white)
                     .frame(width: 52, height: 52)
-                
+                    .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 4, x: 0, y: 2)
+
                 Image(systemName: "bell")
                     .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.colors.primaryText)
             }
-            
+
             Button(action: onProfileTap) {
                 Group {
                     if let img = currentUser.profileUIImage {
@@ -57,13 +59,13 @@ struct HomeHeaderView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 24, height: 24)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(theme.colors.secondaryText)
                     }
                 }
                 .frame(width: 52, height: 52)
                 .background(
                     Circle()
-                        .fill(.black.opacity(0.3))
+                        .fill(theme.isDarkMode ? .black.opacity(0.3) : .white)
                 )
                 .clipShape(Circle())
                 .padding(.horizontal, 2)
@@ -74,7 +76,7 @@ struct HomeHeaderView: View {
 }
 
 #Preview{
-    
+
     ZStack{
         LinearGradient(
             colors: [
@@ -85,8 +87,9 @@ struct HomeHeaderView: View {
             endPoint: .trailing
         )
         .ignoresSafeArea()
-        
+
         HomeHeaderView()
             .environmentObject(CurrentUserViewModel())
+            .environmentObject(ThemeManager())
     }
 }

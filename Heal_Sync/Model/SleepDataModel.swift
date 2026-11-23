@@ -11,7 +11,7 @@ enum SleepFilterPeriod: String, CaseIterable, Identifiable {
     case tonight = "TONIGHT"
     case weekly = "THIS WEEK"
     case monthly = "THIS MONTH"
-    
+
     var id: String {self.rawValue}
 }
 

@@ -48,11 +48,14 @@ struct ProfileScreenConstants {
     static let logoutMessage = "Are you sure you want to log out of HealSync?"
     static let logoutConfirm = "Log Out"
     static let logoutCancel = "Cancel"
-
+    
     // Edit profile
 
     static let editProfile = "Edit Profile"
     static let namePlaceholder = "Full Name"
+    static let nameRequired = "Name is required"
+    static let nameTooShort = "Name must be at least 2 characters"
+    static let nameTooLong = "Name must be 50 characters or fewer"
     static let save = "Save"
     static let cancel = "Cancel"
 
@@ -65,6 +68,10 @@ struct ProfileScreenConstants {
     static let notSet = "—"
     static let heightPlaceholder = "Height (cm)"
     static let weightPlaceholder = "Weight (kg)"
+    static let bodyHint = "Add your height & weight for better BMI and insights."
+    static let bodyAlertTitle = "Complete Your Profile"
+    static let bodyAlertMessage = "Please add your height & weight for better BMI and insights."
+    static let bodyAlertOK = "OK"
     static let editBodyMetrics = "Edit"
     static let bmiUnderweight = "Underweight"
     static let bmiHealthy = "Healthy"

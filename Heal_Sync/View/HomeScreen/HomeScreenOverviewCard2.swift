@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct HomeScreenOverviewCard2: View {
-    
+
+    @EnvironmentObject var theme: ThemeManager
     let imageName: String
     let titleText: String
     let descriptionText: String
     let resultText: String
-    
+
     var imageColor: Color = Color(red: 0.30, green: 0.92, blue: 0.65)
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: imageName)
@@ -23,21 +24,21 @@ struct HomeScreenOverviewCard2: View {
                 .foregroundColor(imageColor)
                 .frame(width: 22, height: 22)
                 .padding(.top, 1)
-            
+
             VStack(alignment: .leading, spacing: 5) {
                 Text(titleText)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
-                
+
                 Text(descriptionText)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.85))
+                    .foregroundColor(theme.colors.primaryText.opacity(0.85))
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                     .fixedSize(horizontal: false, vertical: true)
-                
+
                 Text(resultText)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color(red: 0.20, green: 0.77, blue: 0.60))
@@ -54,11 +55,12 @@ struct HomeScreenOverviewCard2: View {
         .frame(maxWidth: .infinity, minHeight: 108, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 15)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -70,4 +72,5 @@ struct HomeScreenOverviewCard2: View {
         descriptionText: "7 h 20 m",
         resultText: "Good"
     )
+    .environmentObject(ThemeManager())
 }

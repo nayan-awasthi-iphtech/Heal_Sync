@@ -14,9 +14,13 @@ class PedometerManager: ObservableObject {
 
     private var lastLiveSteps: Int = 0
     private var lastLiveDistance: Double = 0.0
+    private var activeRequest: UUID?
 
     @Published var currentSteps: Int = 0
     @Published var distanceMeters: Double = 0.0
+    @Published var lastError: String?
+    @Published var isAvailable: Bool = true
+    @Published var isPermissionDenied: Bool = false
 
     private(set) var currentTimeframe: String = "Day"
 
@@ -27,14 +31,33 @@ class PedometerManager: ObservableObject {
         lastLiveDistance = 0.0
     }
 
+    private func friendlyMessage(for error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == "CMErrorDomain" && nsError.code == 105 {
+            return "Motion access denied (105). Allow Motion & Fitness for Heal_Sync in Settings, then tap Start again."
+        }
+        return nsError.localizedDescription
+    }
+    
     func loadActivityData(for timeFrame: String) {
+        pedometer.stopUpdates()
+        activeRequest = nil
         currentTimeframe = timeFrame
-        pedometer.stopUpdates() // Stop active streams before recalculating
         lastLiveSteps = 0
         lastLiveDistance = 0.0
+        lastError = nil
+        isPermissionDenied = false
+        isAvailable = CMPedometer.isStepCountingAvailable()
+        guard isAvailable else { return }
+        if #available(iOS 11.0, *) {
+            let status = CMPedometer.authorizationStatus()
+            if status == .denied || status == .restricted {
+                isPermissionDenied = true
+                lastError = "Motion access denied (105). Allow Motion & Fitness for Heal_Sync in Settings, then tap Start again."
+                return
+            }
+        }
 
-        guard CMPedometer.isStepCountingAvailable() else { return }
-        
         let now = Date()
         let calendar = Calendar.current
         let startDate: Date
@@ -52,39 +75,58 @@ class PedometerManager: ObservableObject {
             startDate = calendar.startOfDay(for: now)
         }
 
-        // Query historical steps up to this exact moment
+        let request = UUID()
+        activeRequest = request
         pedometer.queryPedometerData(from: startDate, to: now) { [weak self] data, error in
             DispatchQueue.main.async {
-                guard let self = self, error == nil, let data = data else { return }
+                guard let self = self else { return }
+                guard self.activeRequest == request else { return }
                 guard self.currentTimeframe == timeFrame else { return }
-                
+                if let error = error {
+                    let nsError = error as NSError
+                    if nsError.domain == "CMErrorDomain" && nsError.code == 105 {
+                        self.isPermissionDenied = true
+                    }
+                    self.lastError = self.friendlyMessage(for: error)
+                    return
+                }
+                guard let data = data else {
+                    self.lastError = "Unable to read motion data."
+                    return
+                }
                 self.currentSteps = data.numberOfSteps.intValue
                 self.distanceMeters = data.distance?.doubleValue ?? (Double(self.currentSteps) * 0.75)
-            }
-        }
-
-        // Only stream live hardware updates when viewing "Day"
-        if timeFrame == "Day" {
-            pedometer.startUpdates(from: now) { [weak self] liveData, error in
-                DispatchQueue.main.async {
-                    guard let self = self, error == nil, let liveData = liveData else { return }
-                    guard self.currentTimeframe == "Day" else { return }
-
-                    // Deliveries are cumulative since 'now' — add only the delta.
-                    let totalSteps = liveData.numberOfSteps.intValue
-                    let totalDistance = liveData.distance?.doubleValue ?? (Double(totalSteps) * 0.75)
-                    let newSteps = max(0, totalSteps - self.lastLiveSteps)
-                    let newDistance = max(0, totalDistance - self.lastLiveDistance)
-                    self.lastLiveSteps = totalSteps
-                    self.lastLiveDistance = totalDistance
-                    self.currentSteps += newSteps
-                    self.distanceMeters += newDistance
+                guard timeFrame == "Day" else { return }
+                self.pedometer.startUpdates(from: now) { [weak self] liveData, error in
+                    DispatchQueue.main.async {
+                        guard let self = self else { return }
+                        guard self.activeRequest == request else { return }
+                        if let error = error {
+                            let nsError = error as NSError
+                            if nsError.domain == "CMErrorDomain" && nsError.code == 105 {
+                                self.isPermissionDenied = true
+                            }
+                            self.lastError = self.friendlyMessage(for: error)
+                            return
+                        }
+                        guard let liveData = liveData else { return }
+                        guard self.currentTimeframe == "Day" else { return }
+                        let totalSteps = liveData.numberOfSteps.intValue
+                        let totalDistance = liveData.distance?.doubleValue ?? (Double(totalSteps) * 0.75)
+                        let newSteps = max(0, totalSteps - self.lastLiveSteps)
+                        let newDistance = max(0, totalDistance - self.lastLiveDistance)
+                        self.lastLiveSteps = totalSteps
+                        self.lastLiveDistance = totalDistance
+                        self.currentSteps += newSteps
+                        self.distanceMeters += newDistance
+                    }
                 }
             }
         }
     }
 
     func stopTracking() {
+        activeRequest = nil
         pedometer.stopUpdates()
         lastLiveSteps = 0
         lastLiveDistance = 0.0
@@ -98,13 +140,12 @@ class MockPedometerManager: PedometerManager {
     override func loadActivityData(for timeFrame: String) {
         timer?.invalidate()
         super.loadActivityData(for: timeFrame)
-
-        guard timeFrame == "Day" else { return }
-
-        // Start from seeded base and accumulate live test steps on Simulator
+        isAvailable = true
+        lastError = nil
+        isPermissionDenied = false
         timer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { [weak self] _ in
             DispatchQueue.main.async {
-                guard let self = self, self.currentTimeframe == "Day" else { return }
+                guard let self = self else {return}
                 let newSteps = Int.random(in: 1...3)
                 self.currentSteps += newSteps
                 self.distanceMeters += Double(newSteps) * 0.75

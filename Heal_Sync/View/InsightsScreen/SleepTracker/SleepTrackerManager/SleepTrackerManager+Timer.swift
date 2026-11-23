@@ -9,10 +9,10 @@ import Foundation
 import Combine
 
 extension SleepTrackerManager {
-    
+
     func startTimer(startTime: Date) {
         stopTimer()
-        
+
         timerCancellable = Timer.publish(
             every: 1.0,
             on: .main,
@@ -20,14 +20,14 @@ extension SleepTrackerManager {
         )
         .autoconnect()
         .sink { [weak self] now in
-            
+
             guard let self = self else {
                 return
             }
-            
+
             let elapsed =
             now.timeIntervalSince(startTime)
-            
+
             if elapsed / 3600 >= maxAllowedSleepHours {
                 stopSleepSession()
             } else {
@@ -38,21 +38,21 @@ extension SleepTrackerManager {
             }
         }
     }
-    
+
     func stopTimer() {
         timerCancellable?.cancel()
         timerCancellable = nil
     }
-    
+
     func startForegroundTimer(startTime: Date) {
         stopForegroundTimer()
-        
+
         timerCancellable = Timer.publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] now in
                 guard let self = self else { return }
                 let elapsed = now.timeIntervalSince(startTime)
-                
+
                 if (elapsed / 3600.0) >= self.maxAllowedSleepHours {
                     self.stopSleepSession()
                 } else {
@@ -60,7 +60,7 @@ extension SleepTrackerManager {
                 }
             }
     }
-    
+
     private func stopForegroundTimer() {
         timerCancellable?.cancel()
         timerCancellable = nil

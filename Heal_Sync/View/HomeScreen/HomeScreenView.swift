@@ -239,7 +239,7 @@ struct HomeScreenView: View {
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(theme.colors.primaryText)
                         
-                        HStack(spacing: 10){
+                        HStack(spacing: 16){
                             HomeBottomCard(
                                 imageName: HomeScreenConstants.BottomCardIcons.logIcon,
                                 titleText: HomeScreenConstants.TitleText.LogText,
@@ -253,6 +253,7 @@ struct HomeScreenView: View {
                                 imageColor: .blue,
                                 customGlowColor: .blue,
                             )
+                            
                             
                             HomeBottomCard(
                                 imageName: HomeScreenConstants.BottomCardIcons.HeartIcon,

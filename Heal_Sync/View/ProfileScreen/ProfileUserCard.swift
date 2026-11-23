@@ -10,10 +10,11 @@ import PhotosUI
 
 struct ProfileUserCard: View {
 
+    @EnvironmentObject var theme: ThemeManager
     @Binding var photoItem: PhotosPickerItem?
     @ObservedObject var currentUser: CurrentUserViewModel
 
-    private let mintGreen = Color(red: 0.30, green: 0.92, blue: 0.65)
+    private var mintGreen: Color { theme.colors.accent }
 
     var body: some View {
         HStack(spacing: 14) {
@@ -55,12 +56,12 @@ struct ProfileUserCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(currentUser.displayName)
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.primaryText)
                     .lineLimit(1)
 
                 Text(currentUser.email)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(theme.colors.secondaryText)
                     .lineLimit(1)
 
                 if !currentUser.memberSince.isEmpty {
@@ -74,11 +75,12 @@ struct ProfileUserCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.07, green: 0.14, blue: 0.16).opacity(0.85))
+                .fill(theme.colors.cardBackground)
+                .shadow(color: theme.isDarkMode ? .clear : .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(theme.isDarkMode ? Color.white.opacity(0.08) : Color.black.opacity(0.08), lineWidth: 1)
         )
         .padding(.horizontal, 16)
     }

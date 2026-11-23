@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct ActivityScreenStatsComponent: View {
-    
+
+    @EnvironmentObject var theme: ThemeManager
     var ImageName: String
     var isSystemImage: Bool = false
     var titleText: String = ""
     var unitText: String = ""
     var ImageColor: Color = Color(red: 0.20, green: 0.69, blue: 0.67)
-    
+
     var body: some View {
         VStack(spacing: 8){
 
@@ -33,14 +34,14 @@ struct ActivityScreenStatsComponent: View {
                     .frame(width: 32, height: 32)
                     .foregroundColor(Color(red: 0.20, green: 0.69, blue: 0.67))
             }
-            
+
             Text(titleText)
                 .font(.system(size: 25, weight: .bold))
-                .foregroundStyle(.white)
-            
+                .foregroundStyle(theme.colors.primaryText)
+
             Text(unitText)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.colors.secondaryText)
         }
     }
 }
@@ -58,5 +59,6 @@ struct ActivityScreenStatsComponent: View {
         .ignoresSafeArea()
         ActivityScreenStatsComponent(ImageName: "mapSymbol" , titleText: "5.2", unitText: "km")
             .padding()
+            .environmentObject(ThemeManager())
     }
 }
